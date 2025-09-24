@@ -1,0 +1,92 @@
+/*
+ * ==========================================================================
+ * 1. FONTS & IMPORTS
+ * ==========================================================================
+ */
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Rubik:wght@400;500;700&display=swap');
+
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+/*
+ * ==========================================================================
+ * 2. TAILWIND CSS SOURCES
+ * ==========================================================================
+ */
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+/*
+ * ==========================================================================
+ * 3. DARK MODE CONFIGURATION
+ * ==========================================================================
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * ==========================================================================
+ * 4. THEME CONFIGURATION
+ * This is the core of the Wendy's Diner Design System.
+ * ==========================================================================
+ */
+@theme {
+    /* Font Families */
+    --font-sans: 'Rubik', sans-serif;
+    --font-heading: 'Caprasimo', cursive;
+
+    /* Project Color Palette (Corrected Syntax) */
+    --color-primary-text: #57402F; /* Café noir */
+    --color-background:   #FDFBF2;   /* Floral white */
+    --color-accent-1:     #D62700;   /* Sinopia - Rouge cerise */
+    --color-accent-2:     #EC9903;   /* Gamboge - Jaune cheddar */
+    --color-accent-3:     #A4C61C;   /* Yellow green - Vert salade */
+    --color-white:        #FFFFFF;
+
+    /* Flux UI Accent Variable Mapping */
+    --color-accent: var(--color-accent-1);
+    --color-accent-foreground: var(--color-white);
+}
+
+/*
+ * ==========================================================================
+ * 5. BASE & COMPONENT STYLES
+ * ==========================================================================
+ */
+@layer base {
+    /* Default body styles */
+    body {
+        @apply bg-background text-primary-text font-sans antialiased;
+    }
+
+    /* Default heading styles */
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-heading;
+    }
+
+    /* Default border color */
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: #e5e5e5; /* Using a neutral light gray as a default */
+    }
+}
+
+/* Flux UI Overrides */
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+/* Updated focus ring to use our brand colors */
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-none ring-2 ring-accent-1 ring-offset-2 ring-offset-background;
+}
