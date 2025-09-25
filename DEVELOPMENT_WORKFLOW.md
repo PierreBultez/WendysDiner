@@ -87,7 +87,7 @@ This document outlines the complete step-by-step development workflow for the We
 - [ ] Implement hero carousel section (~90vh)
 - [X] Build "Nos Incontournables" featured products section
 - [ ] Create "L'Expérience Wendy's" story section
-- [ ] Add Google Reviews integration placeholder
+- [X] Add Google Reviews integration placeholder
 
 ### 5.2 Story Page (`/histoire`)
 - [ ] Create story page Volt component
@@ -143,11 +143,11 @@ This document outlines the complete step-by-step development workflow for the We
 - [ ] Test map functionality and responsiveness
 
 ### 7.2 Google Reviews Integration
-- [ ] Set up Google Places API integration
-- [ ] Create service class for fetching reviews
-- [ ] Implement review display component
-- [ ] Add review caching mechanism
-- [ ] Handle API errors gracefully
+- [X] Set up Google Places API integration
+- [X] Create service class for fetching reviews
+- [X] Implement review display component
+- [X] Add review caching mechanism
+- [X] Handle API errors gracefully
 
 ---
 
