@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\Forms\Admin;
 
-use Livewire\Attributes\Validate;
-use Livewire\Form;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Validate;
+use Livewire\Form;
 
 class CategoryForm extends Form
 {

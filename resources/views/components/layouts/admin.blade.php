@@ -27,7 +27,7 @@
         <flux:sidebar.item icon="rectangle-stack" href="{{ route('dashboard.categories.index') }}" wire:navigate :current="request()->routeIs('dashboard.categories.index')">
             Catégories
         </flux:sidebar.item>
-        <flux:sidebar.item icon="cake" href="#" wire:navigate>
+        <flux:sidebar.item icon="cake" href="{{ route('dashboard.products.index') }}" wire:navigate :current="request()->routeIs('dashboard.products.index')">
             Produits
         </flux:sidebar.item>
     </flux:sidebar.nav>

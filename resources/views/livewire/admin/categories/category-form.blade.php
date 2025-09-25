@@ -1,12 +1,11 @@
 <?php
 
-use Livewire\Volt\Component;
-use Livewire\Attributes\On;
-use App\Livewire\Admin\CategoryForm;
+use App\Livewire\Forms\Admin\CategoryForm;
 use App\Models\Category;
+use Livewire\Attributes\On;
+use Livewire\Volt\Component;
 
-new class extends Component
-{
+new class extends Component {
     public CategoryForm $form;
 
     public bool $showModal = false;
@@ -56,14 +55,15 @@ new class extends Component
             {{-- Form fields (no changes here) --}}
             <flux:field>
                 <flux:label for="name">Nom de la catégorie</flux:label>
-                <flux:input wire:model="form.name" id="name" type="text" placeholder="Ex: Burgers" />
-                <flux:error for="form.name" />
+                <flux:input wire:model="form.name" id="name" type="text" placeholder="Ex: Burgers"/>
+                <flux:error for="form.name"/>
             </flux:field>
 
             <flux:field>
                 <flux:label for="description">Description (Optionnel)</flux:label>
-                <flux:textarea wire:model="form.description" id="description" placeholder="Une brève description de la catégorie..." />
-                <flux:error for="form.description" />
+                <flux:textarea wire:model="form.description" id="description"
+                               placeholder="Une brève description de la catégorie..."/>
+                <flux:error for="form.description"/>
             </flux:field>
 
             <div class="flex justify-end gap-2 pt-4">

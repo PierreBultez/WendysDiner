@@ -83,9 +83,9 @@ This document outlines the complete step-by-step development workflow for the We
 ## PHASE 5: Public Pages Development
 
 ### 5.1 Homepage (`/`)
-- [ ] Create homepage Volt component
+- [X] Create homepage Volt component
 - [ ] Implement hero carousel section (~90vh)
-- [ ] Build "Nos Incontournables" featured products section
+- [X] Build "Nos Incontournables" featured products section
 - [ ] Create "L'Expérience Wendy's" story section
 - [ ] Add Google Reviews integration placeholder
 
@@ -120,11 +120,11 @@ This document outlines the complete step-by-step development workflow for the We
 - [X] Add delete confirmation modals
 
 ### 6.2 Product Management
-- [ ] Create product listing page with Volt
-- [ ] Implement product CRUD operations
-- [ ] Add product creation/editing forms with category selection
-- [ ] Implement image upload functionality (placeholder initially)
-- [ ] Add bulk actions for product management
+- [X] Create product listing page with Volt
+- [X] Implement product CRUD operations
+- [X] Add product creation/editing forms with category selection
+- [X] Implement image upload functionality (placeholder initially)
+- [X] Add bulk actions for product management
 
 ### 6.3 Admin Dashboard
 - [ ] Create admin dashboard with statistics

@@ -10,6 +10,7 @@ Volt::route('/', 'pages.home')->name('home');
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Volt::route('/', 'admin.dashboard')->name('index');
     Volt::route('/categories', 'admin.categories.index')->name('categories.index');
+    Volt::route('/products', 'admin.products.index')->name('products.index');
 });
 
 Route::middleware(['auth'])->group(function () {

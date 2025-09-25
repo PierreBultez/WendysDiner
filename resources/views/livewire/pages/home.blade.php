@@ -2,39 +2,22 @@
 
 use Livewire\Volt\Component;
 use Livewire\Attributes\Title;
+use App\Models\Product;
+use function Livewire\Volt\with;
 
 new #[Title("Accueil - Wendy's Diner")] class extends Component
 {
     /**
-     * This is a temporary property to simulate featured products.
-     * It will be replaced with a database query in a later phase.
+     * Provide the featured products to the view.
+     * This method fetches products where 'featured' is true.
      */
-    public array $featuredProducts = [];
-
-    /**
-     * Initialize the component with fake data.
-     */
-    public function mount(): void
+    public function with(): array
     {
-        $this->featuredProducts = [
-            [
-                'name' => 'Le Classique Wendy\'s',
-                'description' => 'Un steak juteux, fromage cheddar fondant, cornichons croquants, oignons et notre sauce secrète dans un pain brioché toasté.',
-                'image_url' => '/images/placeholders/burger-classic.png',
-                'price' => '12.50€'
-            ],
-            [
-                'name' => 'Frites Maison Cheddar',
-                'description' => 'Nos frites dorées et croustillantes, généreusement nappées d\'une onctueuse sauce au cheddar et de morceaux de bacon grillé.',
-                'image_url' => '/images/placeholders/frites-cheddar.png',
-                'price' => '6.50€'
-            ],
-            [
-                'name' => 'Milkshake Vanille Vintage',
-                'description' => 'Un grand classique indémodable. Une crème glacée à la vanille de Madagascar, mixée à la perfection pour une texture divine.',
-                'image_url' => '/images/placeholders/milkshake-vanille.png',
-                'price' => '7.00€'
-            ],
+        return [
+            'featuredProducts' => Product::where('featured', true)
+                ->orderBy('name')
+                ->take(5) // We only want to show a maximum of 5
+                ->get(),
         ];
     }
 }; ?>
@@ -72,27 +55,40 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
     </section>
 
     <!-- =================================================================== -->
-    <!-- "NOS INCONTOURNABLES" SECTION                                       -->
+    <!-- "NOS INCONTOURNABLES" SECTION (NOW DYNAMIC & FLEXIBLE)              -->
     <!-- =================================================================== -->
     <section class="py-16 md:py-24 bg-background">
         <div class="container mx-auto px-4">
             <h2 class="text-4xl md:text-5xl font-bold text-center text-primary-text">Nos Incontournables</h2>
             <p class="text-center mt-2 text-primary-text/70">Les favoris de nos clients, préparés avec amour.</p>
 
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-                @foreach($featuredProducts as $product)
-                    <div class="border border-primary-text/10 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
-                        <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}" class="w-full h-56 object-cover">
-                        <div class="p-6">
-                            <h3 class="text-2xl font-bold text-accent-1">{{ $product['name'] }}</h3>
-                            <p class="mt-2 text-primary-text/80 text-sm">{{ $product['description'] }}</p>
-                            <div class="mt-4 text-xl font-bold text-accent-2">
-                                {{ $product['price'] }}
+            @if($featuredProducts->isNotEmpty())
+                {{-- CORRECTIF : Remplacement de Grid par Flexbox pour un centrage dynamique --}}
+                <div class="mt-12 flex flex-nowrapwrap justify-center gap-8">
+                    @foreach($featuredProducts as $product)
+                        {{-- On donne une largeur maximale à chaque carte pour un affichage cohérent --}}
+                        <div class="w-full max-w-sm flex flex-col border border-primary-text/10 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+                            {{-- L'image ne bouge pas --}}
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-56 object-cover">
+
+                            {{-- CORRECTIF : Ce conteneur devient une colonne flexible qui grandit --}}
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-2xl font-bold text-accent-1">{{ $product->name }}</h3>
+                                <p class="mt-2 text-primary-text/80 text-sm">{{ $product->description }}</p>
+
+                                {{-- CORRECTIF : Ce div pousse le prix en bas --}}
+                                <div class="mt-auto pt-4">
+                                    <div class="text-xl font-bold text-accent-2">
+                                        {{ number_format($product->price, 2, ',', ' ') }} €
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @endforeach
+                </div>
+            @else
+                {{-- ... (inchangé) ... --}}
+            @endif
         </div>
     </section>
 
