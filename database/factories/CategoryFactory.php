@@ -24,7 +24,6 @@ class CategoryFactory extends Factory
         return [
             'name' => Str::title($name),
             'slug' => Str::slug($name),
-            'description' => fake()->optional()->sentence(), // 50% chance of being null
         ];
     }
 }

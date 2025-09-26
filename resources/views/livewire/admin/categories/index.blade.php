@@ -143,7 +143,13 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Catégories')] cla
                             @endif
                         </span>
                     </th>
-                    <th scope="col" class="px-6 py-3">Description</th>
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('position')">
+                        <span class="flex items-center gap-1">
+                            Position @if($sortColumn === 'position')
+                                <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" />
+                            @endif
+                        </span>
+                    </th>
                     <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('products_count')">
                         <span class="flex items-center gap-1">
                             Produits
@@ -165,7 +171,7 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Catégories')] cla
                             {{ $category->name }}
                         </th>
                         <td class="px-6 py-4">{{ $category->slug }}</td>
-                        <td class="px-6 py-4">{{ $category->description ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $category->position }}</td>
                         <td class="px-6 py-4">{{ $category->products_count }}</td>
                         <td class="px-6 py-4 text-right">
                             <flux:button.group>

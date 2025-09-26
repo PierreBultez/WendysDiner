@@ -60,10 +60,9 @@ new class extends Component {
             </flux:field>
 
             <flux:field>
-                <flux:label for="description">Description (Optionnel)</flux:label>
-                <flux:textarea wire:model="form.description" id="description"
-                               placeholder="Une brève description de la catégorie..."/>
-                <flux:error for="form.description"/>
+                <flux:label for="position">Position</flux:label>
+                <flux:input wire:model="form.position" id="position" type="number" min="0" />
+                <flux:error for="form.position" />
             </flux:field>
 
             <div class="flex justify-end gap-2 pt-4">

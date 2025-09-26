@@ -60,5 +60,6 @@
 
 {{-- Flux UI & Livewire scripts --}}
 @fluxScripts
+@stack('scripts')
 </body>
 </html>

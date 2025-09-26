@@ -86,27 +86,27 @@ This document outlines the complete step-by-step development workflow for the We
 - [X] Create homepage Volt component
 - [ ] Implement hero carousel section (~90vh)
 - [X] Build "Nos Incontournables" featured products section
-- [ ] Create "L'Expérience Wendy's" story section
+- [X] Create "L'Expérience Wendy's" story section
 - [X] Add Google Reviews integration placeholder
 
 ### 5.2 Story Page (`/histoire`)
-- [ ] Create story page Volt component
-- [ ] Design compelling restaurant story layout
-- [ ] Add vintage imagery and typography
-- [ ] Implement responsive design
+- [X] Create story page Volt component
+- [X] Design compelling restaurant story layout
+- [X] Add vintage imagery and typography
+- [X] Implement responsive design
 
 ### 5.3 Menu Page (`/carte`)
-- [ ] Create menu display Volt component
-- [ ] Implement category-based product filtering
-- [ ] Design product cards with images and pricing
+- [X] Create menu display Volt component
+- [X] Implement category-based product filtering
+- [X] Design product cards with images and pricing
 - [ ] Add search functionality for menu items
 
 ### 5.4 Info Page (`/infos`)
-- [ ] Create info page Volt component
-- [ ] Add restaurant contact information
-- [ ] Implement click-to-call functionality
-- [ ] Add opening hours display
-- [ ] Embed Google Maps (placeholder initially)
+- [X] Create info page Volt component
+- [X] Add restaurant contact information
+- [X] Implement click-to-call functionality
+- [X] Add opening hours display
+- [X] Embed Google Maps (placeholder initially)
 
 ---
 
@@ -137,10 +137,10 @@ This document outlines the complete step-by-step development workflow for the We
 ## PHASE 7: API Integrations
 
 ### 7.1 Google Maps Integration
-- [ ] Implement Google Maps embed
-- [ ] Configure map with restaurant location
-- [ ] Add custom map styling to match theme
-- [ ] Test map functionality and responsiveness
+- [X] Implement Google Maps embed
+- [X] Configure map with restaurant location
+- [X] Add custom map styling to match theme
+- [X] Test map functionality and responsiveness
 
 ### 7.2 Google Reviews Integration
 - [X] Set up Google Places API integration

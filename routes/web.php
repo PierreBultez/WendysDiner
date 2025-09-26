@@ -6,6 +6,8 @@ use Livewire\Volt\Volt;
 
 Volt::route('/', 'pages.home')->name('home');
 Volt::route('/histoire', 'pages.story')->name('story');
+Volt::route('/infos', 'pages.infos')->name('infos');
+Volt::route('/carte', 'pages.menu')->name('menu');
 
 // ADMIN DASHBOARD ROUTES
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {

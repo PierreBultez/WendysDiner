@@ -15,18 +15,18 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Nos Burgers Signature',
-            'Accompagnements',
-            'Boissons Fraîches',
-            'Desserts Gourmands',
-            'Menu Enfant'
+            ['name' => 'Nos Burgers Signature', 'position' => 10],
+            ['name' => 'Accompagnements', 'position' => 20],
+            ['name' => 'Boissons Fraîches', 'position' => 30],
+            ['name' => 'Desserts Gourmands', 'position' => 40],
+            ['name' => 'Menu Enfant', 'position' => 50],
         ];
 
-        foreach ($categories as $categoryName) {
+        foreach ($categories as $categoryData) {
             Category::create([
-                'name' => $categoryName,
-                'slug' => Str::slug($categoryName),
-                // Description can be left null
+                'name' => $categoryData['name'],
+                'slug' => Str::slug($categoryData['name']),
+                'position' => $categoryData['position'],
             ]);
         }
     }

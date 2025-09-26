@@ -16,8 +16,8 @@ class CategoryForm extends Form
     #[Validate]
     public string $name = '';
 
-    #[Validate('nullable|string')]
-    public string $description = '';
+    #[Validate('required|integer|min:0')]
+    public int $position = 0;
 
     /**
      * Set the validation rules.
@@ -45,7 +45,7 @@ class CategoryForm extends Form
     {
         $this->category = $category;
         $this->name = $category->name;
-        $this->description = $category->description ?? '';
+        $this->position = $category->position;
     }
 
     /**
@@ -60,7 +60,7 @@ class CategoryForm extends Form
         Category::create([
             'name' => $this->name,
             'slug' => Str::slug($this->name),
-            'description' => $this->description,
+            'position' => $this->position,
         ]);
 
         // Reset the form fields.
@@ -77,7 +77,7 @@ class CategoryForm extends Form
         $this->category->update([
             'name' => $this->name,
             'slug' => Str::slug($this->name),
-            'description' => $this->description,
+            'position' => $this->position,
         ]);
 
         $this->reset();
