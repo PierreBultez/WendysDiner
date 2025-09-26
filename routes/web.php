@@ -5,6 +5,7 @@ use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 
 Volt::route('/', 'pages.home')->name('home');
+Volt::route('/histoire', 'pages.story')->name('story');
 
 // ADMIN DASHBOARD ROUTES
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {

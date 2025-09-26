@@ -54,39 +54,38 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
     </section>
 
     <!-- =================================================================== -->
-    <!-- "NOS INCONTOURNABLES" SECTION (NOW DYNAMIC & FLEXIBLE)              -->
+    <!-- "NOS INCONTOURNABLES" SECTION (REFACTORED)                          -->
     <!-- =================================================================== -->
     <section class="py-16 md:py-24 bg-background">
         <div class="container mx-auto px-4">
-            <h2 class="text-4xl md:text-5xl font-bold text-center text-primary-text">Nos Incontournables</h2>
-            <p class="text-center mt-2 text-primary-text/70">Les favoris de nos clients, préparés avec amour.</p>
+            {{-- On utilise maintenant notre composant <x-section-title> --}}
+            <x-section-title
+                title="Nos Incontournables"
+                subtitle="Les favoris de nos clients, préparés avec amour."
+            />
 
             @if($featuredProducts->isNotEmpty())
-                {{-- CORRECTIF : Remplacement de Grid par Flexbox pour un centrage dynamique --}}
                 <div class="mt-12 flex flex-wrap justify-center gap-8">
                     @foreach($featuredProducts as $product)
-                        {{-- On donne une largeur maximale à chaque carte pour un affichage cohérent --}}
-                        <div class="w-full max-w-xs flex flex-col border border-primary-text/10 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
-                            {{-- L'image ne bouge pas --}}
+                        {{-- On utilise maintenant notre composant <x-card> --}}
+                        <x-card class="max-w-xs overflow-hidden">
                             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-56 object-cover">
-
-                            {{-- CORRECTIF : Ce conteneur devient une colonne flexible qui grandit --}}
                             <div class="p-6 flex flex-col flex-grow">
                                 <h3 class="text-2xl font-bold text-accent-1">{{ $product->name }}</h3>
                                 <p class="mt-2 text-primary-text/80 text-sm">{{ $product->description }}</p>
-
-                                {{-- CORRECTIF : Ce div pousse le prix en bas --}}
                                 <div class="mt-auto pt-4">
                                     <div class="text-xl font-bold text-accent-2">
                                         {{ number_format($product->price, 2, ',', ' ') }} €
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </x-card>
                     @endforeach
                 </div>
             @else
-                {{-- ... (inchangé) ... --}}
+                <div class="mt-12 text-center text-primary-text/60">
+                    <p>Aucun produit mis en avant pour le moment. Revenez bientôt !</p>
+                </div>
             @endif
         </div>
     </section>
@@ -101,16 +100,22 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
                 <img src="/images/placeholders/diner-interior.jpg" alt="Ambiance vintage chez Wendy's Diner" class="rounded-lg shadow-2xl">
             </div>
 
-            {{-- Text Column --}}
-            <div>
-                <h2 class="text-4xl md:text-5xl font-bold text-accent-2">Plus qu'un repas, une expérience</h2>
-                <p class="mt-4 text-background/80">
+            {{-- On utilise notre composant <x-section-title> ici aussi, en alignant le texte à gauche --}}
+            <div class="space-y-4">
+                {{-- On utilise maintenant la prop 'titleClasses' pour changer la couleur --}}
+                <x-section-title
+                    class="!text-left"
+                    title="Plus qu'un repas, une expérience"
+                    titleClasses="text-accent-2" {{-- <-- LA CORRECTION EST ICI --}}
+                />
+
+                <p class="text-background/80">
                     Chez Wendy's, chaque détail compte. Des banquettes en cuir rouge à notre jukebox d'époque, nous avons recréé l'atmosphère authentique des diners américains pour vous faire voyager dans le temps.
                 </p>
-                <p class="mt-4 text-background/80">
+                <p class="text-background/80">
                     Venez pour nos burgers, restez pour l'ambiance !
                 </p>
-                <div class="mt-8">
+                <div class="pt-4">
                     <flux:button variant="ghost" href="/histoire" wire:navigate class="!text-accent-2 !border-accent-2 hover:!bg-accent-2 hover:!text-primary-text">
                         Notre histoire
                     </flux:button>
@@ -120,16 +125,18 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
     </section>
 
     <!-- =================================================================== -->
-    <!-- GOOGLE REVIEWS SECTION (with CTA card)                              -->
+    <!-- GOOGLE REVIEWS SECTION (REFACTORED)                                 -->
     <!-- =================================================================== -->
     <section class="py-16 md:py-24 bg-background">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl md:text-5xl font-bold text-primary-text">Ce que nos clients disent</h2>
+            <x-section-title
+                title="Ce que nos clients disent"
+            />
 
             <div class="mt-12 flex flex-wrap justify-center gap-8">
-                {{-- Loop through the existing reviews from the API --}}
                 @forelse($reviews as $review)
-                    <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md text-left flex flex-col">
+                    {{-- On réutilise le même composant <x-card> --}}
+                    <x-card class="max-w-md p-6 text-left">
                         <div class="flex items-center mb-4">
                             <img src="{{ $review['profile_photo_url'] }}" alt="{{ $review['author_name'] }}" class="w-12 h-12 rounded-full mr-4">
                             <div>
@@ -145,15 +152,15 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
                             @endfor
                         </div>
                         <p class="text-primary-text/80 text-sm italic flex-grow">"{{ Illuminate\Support\Str::limit($review['text'], 200) }}"</p>
-                    </div>
+                    </x-card>
                 @empty
                     <div class="text-center text-primary-text/60">
                         <p>Impossible de charger les avis pour le moment.</p>
                     </div>
                 @endforelse
 
-                {{-- CTA Card to leave a review (this is the new part) --}}
-                <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md flex flex-col justify-center items-center text-center border-2 border-dashed border-accent-2/50">
+                {{-- On utilise la variante "cta" de notre composant <x-card> --}}
+                <x-card variant="cta" class="max-w-md p-6">
                     <div class="flex items-center">
                         {{-- Google 'G' Logo SVG --}}
                         <svg class="w-12 h-12" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.222 0-9.618-3.226-11.283-7.581l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 36.494 44 30.861 44 24c0-1.341-.138-2.65-.389-3.917z"></path></svg>
@@ -171,7 +178,7 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
                             Lire ou laisser un avis
                         </flux:button>
                     </div>
-                </div>
+                </x-card>
             </div>
         </div>
     </section>
