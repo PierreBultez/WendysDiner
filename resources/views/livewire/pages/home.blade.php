@@ -6,7 +6,7 @@ use App\Models\Product;
 use App\Services\GooglePlacesService;
 use function Livewire\Volt\with;
 
-new #[Title("Accueil - Wendy's Diner")] class extends Component
+new #[Title("Wendy's Diner - Burgers & Frites Maison à Courthézon")] class extends Component
 {
     /**
      * Provide the featured products to the view.
@@ -37,7 +37,7 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
                 Le Goût Authentique
             </h1>
             <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-white/90">
-                Plongez dans l'ambiance des années 50 et redécouvrez les saveurs uniques de l'Amérique.
+                De vrais burgers, des frites maison comme dans le Nord, et une ambiance 50's. Bienvenue chez vous, à Courthézon.
             </p>
             <div class="mt-8">
                 {{-- CORRECTIF : Remplacement de size="lg" par des classes Tailwind --}}
@@ -110,14 +110,14 @@ new #[Title("Accueil - Wendy's Diner")] class extends Component
                 />
 
                 <p class="text-background/80">
-                    Chez Wendy's, chaque détail compte. Des banquettes en cuir rouge à notre jukebox d'époque, nous avons recréé l'atmosphère authentique des diners américains pour vous faire voyager dans le temps.
+                    Wendy's Diner, c'est l'histoire d'un rêve né dans le Nord de la France et ressuscité ici, à Courthézon, grâce à la passion et au soutien de notre incroyable communauté. Chaque burger, chaque frite, raconte une partie de notre parcours.
                 </p>
                 <p class="text-background/80">
-                    Venez pour nos burgers, restez pour l'ambiance !
+                    Nous avons mis tout notre cœur pour recréer l'ambiance authentique des diners américains, un lieu où l'on vient pour la qualité des produits et où l'on reste pour l'atmosphère chaleureuse.
                 </p>
                 <div class="pt-4">
                     <flux:button variant="ghost" href="/histoire" wire:navigate class="!text-accent-2 !border-accent-2 hover:!bg-accent-2 hover:!text-primary-text">
-                        Notre histoire
+                        Découvrir notre histoire
                     </flux:button>
                 </div>
             </div>

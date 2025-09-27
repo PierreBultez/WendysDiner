@@ -24,7 +24,7 @@ class ProductForm extends Form
     #[Validate('required|integer|exists:categories,id')]
     public string $category_id = '';
 
-    #[Validate('nullable|image|max:4096')]
+    #[Validate('nullable|image|max:5120')]
     public ?TemporaryUploadedFile $photo = null;
 
     #[Validate('boolean')]

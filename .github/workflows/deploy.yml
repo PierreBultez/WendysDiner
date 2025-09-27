@@ -1,0 +1,84 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/cache
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/testing
+          mkdir -p storage/framework/views
+          chmod -R 775 storage bootstrap/cache
+          touch storage/logs/laravel.log
+          chmod 775 storage/logs/laravel.log
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Build assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Sauvegarde du fichier .env
+            cp .env .env.backup
+
+            # Récupérer les changements sans écraser les fichiers locaux
+            git fetch --all
+            git reset --hard origin/master
+
+            # Restaurer le fichier .env
+            cp .env.backup .env
+
+            # Installer les dépendances PHP
+            composer install --no-dev --optimize-autoloader --no-interaction
+
+            # Exécuter les migrations de la base de données
+            php artisan migrate --force
+
+            # Nettoyer et reconstruire les caches
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # Compiler les assets (uniquement si nécessaire, tu peux commenter cette partie)
+            npm ci
+            npm run build
+
+            # Ajuster les permissions
+            sudo find . -type f -exec chmod 644 {} \;
+            sudo find . -type d -exec chmod 755 {} \;
+            sudo chmod -R 775 storage bootstrap/cache database/
+            sudo chown -R www-data:www-data storage bootstrap/cache database/
+            sudo chmod 664 database/database.sqlite
+
+            # Réinitialiser les paramètres Laravel
+            php artisan config:clear

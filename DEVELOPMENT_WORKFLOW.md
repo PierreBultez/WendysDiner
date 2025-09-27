@@ -84,7 +84,7 @@ This document outlines the complete step-by-step development workflow for the We
 
 ### 5.1 Homepage (`/`)
 - [X] Create homepage Volt component
-- [ ] Implement hero carousel section (~90vh)
+- [X] Implement hero carousel section (~90vh)
 - [X] Build "Nos Incontournables" featured products section
 - [X] Create "L'Expérience Wendy's" story section
 - [X] Add Google Reviews integration placeholder

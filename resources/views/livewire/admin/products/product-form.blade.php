@@ -127,7 +127,7 @@ new class extends Component {
                                 </span>
                             </label>
                             <flux:text variant="subtle" class="mt-2 text-xs">
-                                PNG, JPG (MAX. 4Mo)
+                                PNG, JPG (MAX. 5Mo)
                             </flux:text>
                         </div>
                     </div>
