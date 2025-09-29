@@ -18,7 +18,12 @@ class Order extends Model
     protected $fillable = [
         'total_amount',
         'status',
+        'pickup_time',
         'notes',
+    ];
+
+    protected $casts = [
+        'pickup_time' => 'datetime',
     ];
 
     /**

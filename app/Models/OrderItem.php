@@ -16,6 +16,11 @@ class OrderItem extends Model
         'quantity',
         'unit_price',
         'notes',
+        'components',
+    ];
+
+    protected $casts = [
+        'components' => 'array',
     ];
 
     public function order(): BelongsTo

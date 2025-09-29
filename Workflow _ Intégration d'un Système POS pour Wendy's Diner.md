@@ -75,9 +75,9 @@
 - [X] Pour les paiements en espèces, un champ "Montant donné" calculera et affichera la monnaie à rendre.
 
 #### P3.7 : Enregistrement de la Commande
-- [ ] Créer la méthode `saveOrder()` qui enregistre `Order`, `OrderItems`, et `Payments` en base de données.
-- [ ] Utiliser une transaction de base de données pour garantir l'intégrité des données.
-- [ ] Réinitialiser l'interface pour la commande suivante.
+- [X] Créer la méthode `saveOrder()` qui enregistre `Order`, `OrderItems`, et `Payments` en base de données.
+- [X] Utiliser une transaction de base de données pour garantir l'intégrité des données.
+- [X] Réinitialiser l'interface pour la commande suivante.
 
 ---
 
@@ -85,11 +85,11 @@
 *L'objectif est de pouvoir consulter et gérer les commandes passées.*
 
 #### P4.1 : Création de la Page
-- [ ] Créer la route `/dashboard/orders` et le composant Volt `admin.orders.index`.
-- [ ] Ajouter le lien "Commandes" dans la sidebar.
+- [X] Créer la route `/dashboard/orders` et le composant Volt `admin.orders.index`.
+- [X] Ajouter le lien "Commandes" dans la sidebar.
 
 #### P4.2 : Listing des Commandes
-- [ ] Afficher la liste des commandes du jour dans un tableau (ID, Heure, Total, Statut).
+- [X] Afficher la liste des commandes du jour dans un tableau (ID, Heure, Total, Statut).
 - [ ] Ajouter un filtre pour voir les commandes des jours précédents.
 
 #### P4.3 : Gestion du Statut
