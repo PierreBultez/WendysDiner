@@ -48,6 +48,9 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
     public string $newPaymentAmount = '';
     public string $cashReceived = '';
 
+    // --- NEW: Toast Notification Management ---
+    public ?string $successMessage = null;
+
     // --- RÈGLES DE VALIDATION ---
     public function rules(): array
     {
@@ -332,8 +335,8 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         $this->payments = [];
         $this->showPaymentModal = false;
 
-        // Optional: Dispatch a success notification
-        $this->dispatch('order-saved-successfully');
+        // Dispatch a success notification
+        $this->successMessage = 'Commande enregistrée avec succès !';
     }
 
 }; ?>
@@ -686,6 +689,44 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         </flux:modal>
 
     </div>
+
+    {{-- --- NOTRE TOAST PERSONNALISÉ --- --}}
+    @if ($successMessage)
+        <div
+            x-data="{ show: true }"
+            x-init="setTimeout(() => { $wire.set('successMessage', null) }, 3000)"
+            x-show="show"
+            x-transition:enter="transform ease-out duration-300 transition"
+            x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed top-20 right-4 z-50 max-w-sm w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5"
+        >
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <flux:icon name="check-circle" class="size-6 text-green-500" />
+                    </div>
+                    <div class="ml-3 w-0 flex-1 pt-0.5">
+                        <p class="text-sm font-medium text-primary-text dark:text-white">
+                            Succès !
+                        </p>
+                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                            {{ $successMessage }}
+                        </p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex">
+                        <button @click="$wire.set('successMessage', null)" class="inline-flex text-zinc-400 hover:text-zinc-500">
+                            <span class="sr-only">Fermer</span>
+                            <flux:icon name="x-mark" class="size-5" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 
