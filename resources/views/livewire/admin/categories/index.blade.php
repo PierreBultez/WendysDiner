@@ -143,6 +143,7 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Catégories')] cla
                             @endif
                         </span>
                     </th>
+                    <th scope="col" class="px-6 py-3">Type</th>
                     <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('position')">
                         <span class="flex items-center gap-1">
                             Position @if($sortColumn === 'position')
@@ -171,6 +172,7 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Catégories')] cla
                             {{ $category->name }}
                         </th>
                         <td class="px-6 py-4">{{ $category->slug }}</td>
+                        <td class="px-6 py-4">{{ $category->type ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $category->position }}</td>
                         <td class="px-6 py-4">{{ $category->products_count }}</td>
                         <td class="px-6 py-4 text-right">
@@ -181,7 +183,7 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Catégories')] cla
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-6 py-12 text-center text-zinc-500">Aucune catégorie trouvée.</td></tr>
+                    <tr><td colspan="7" class="px-6 py-12 text-center text-zinc-500">Aucune catégorie trouvée.</td></tr>
                 @endforelse
                 </tbody>
             </table>

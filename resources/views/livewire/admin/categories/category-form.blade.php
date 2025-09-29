@@ -53,11 +53,28 @@ new class extends Component {
     >
         <form wire:submit="save" class="space-y-4">
             {{-- Form fields (no changes here) --}}
-            <flux:field>
-                <flux:label for="name">Nom de la catégorie</flux:label>
-                <flux:input wire:model="form.name" id="name" type="text" placeholder="Ex: Burgers"/>
-                <flux:error for="form.name"/>
-            </flux:field>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <flux:field>
+                    <flux:label for="name">Nom de la catégorie</flux:label>
+                    <flux:input wire:model="form.name" id="name" type="text" placeholder="Ex: Burgers"/>
+                    <flux:error for="form.name"/>
+                </flux:field>
+
+                <flux:field>
+                    <flux:label for="type">Type de Catégorie (pour POS)</flux:label>
+                    <flux:select wire:model="form.type" id="type">
+                        <option value="">Aucun</option>
+                        <option value="burger">Burger</option>
+                        <option value="accompagnement">Accompagnement</option>
+                        <option value="boisson">Boisson</option>
+                        <option value="sauce">Sauce</option>
+                        <option value="dessert">Dessert</option>
+                        <option value="snack">Snacks</option>
+                        <option value="enfant">Enfants</option>
+                    </flux:select>
+                    <flux:error for="form.type" />
+                </flux:field>
+            </div>
 
             <flux:field>
                 <flux:label for="position">Position</flux:label>
