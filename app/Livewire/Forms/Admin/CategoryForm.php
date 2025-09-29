@@ -16,6 +16,8 @@ class CategoryForm extends Form
     #[Validate]
     public string $name = '';
 
+    public ?string $type = null;
+
     #[Validate('required|integer|min:0')]
     public int $position = 0;
 
@@ -35,6 +37,12 @@ class CategoryForm extends Form
                 // but ignores the current category's name when updating.
                 Rule::unique('categories')->ignore($this->category),
             ],
+            // Rule for the type (moved from the attribute)
+            'type' => [
+                'nullable',
+                'string',
+                Rule::in(['burger', 'accompagnement', 'boisson', 'sauce', 'dessert', 'snack', 'enfant']),
+            ],
         ];
     }
 
@@ -46,6 +54,7 @@ class CategoryForm extends Form
         $this->category = $category;
         $this->name = $category->name;
         $this->position = $category->position;
+        $this->type = $category->type;
     }
 
     /**
@@ -61,6 +70,7 @@ class CategoryForm extends Form
             'name' => $this->name,
             'slug' => Str::slug($this->name),
             'position' => $this->position,
+            'type' => $this->type,
         ]);
 
         // Reset the form fields.
@@ -78,6 +88,7 @@ class CategoryForm extends Form
             'name' => $this->name,
             'slug' => Str::slug($this->name),
             'position' => $this->position,
+            'type' => $this->type,
         ]);
 
         $this->reset();
