@@ -6,6 +6,10 @@
                 "/home/pierre/Documents/Wendy's Diner/artisan",
                 "boost:mcp"
             ]
+        },
+        "context7": {
+            "command": "npx",
+            "args": ["-y", "@upstash/context7-mcp", "--api-key", "YOUR_API_KEY"]
         }
     }
 }

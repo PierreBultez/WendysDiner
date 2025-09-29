@@ -27,6 +27,9 @@
         <flux:sidebar.item icon="banknotes" href="{{ route('dashboard.pos') }}" wire:navigate :current="request()->routeIs('dashboard.pos')">
             Caisse
         </flux:sidebar.item>
+        <flux:sidebar.item icon="shopping-bag" href="{{ route('dashboard.orders.index') }}" wire:navigate :current="request()->routeIs('dashboard.orders.index')">
+            Commandes
+        </flux:sidebar.item>
         <flux:sidebar.item icon="rectangle-stack" href="{{ route('dashboard.categories.index') }}" wire:navigate :current="request()->routeIs('dashboard.categories.index')">
             Catégories
         </flux:sidebar.item>
