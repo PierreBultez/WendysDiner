@@ -56,7 +56,7 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
                 title="Notre Carte"
                 subtitle="Des classiques indémodables, préparés avec des produits frais."
                 titleClasses="!text-white"
-                subtitleClasses="!text-white/80"
+                subtitleClasses="!text-white/80 text-xl"
             />
         </div>
     </div>
