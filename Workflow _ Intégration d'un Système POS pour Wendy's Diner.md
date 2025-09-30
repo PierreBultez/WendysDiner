@@ -93,7 +93,7 @@
 - [ ] Ajouter un filtre pour voir les commandes des jours précédents.
 
 #### P4.3 : Gestion du Statut
-- [ ] Ajouter des boutons sur chaque ligne pour changer le statut de "En cours" à "Terminée".
+- [X] Ajouter des boutons sur chaque ligne pour changer le statut de "En cours" à "Terminée".
 
 ---
 
