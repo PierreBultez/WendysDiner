@@ -34,18 +34,17 @@ new #[Title("Wendy's Diner - Burgers & Frites Maison à Courthézon")] class ext
         {{-- Content --}}
         <div class="relative z-10 p-4">
             <h1 class="text-6xl md:text-8xl font-bold text-white drop-shadow-lg" style="-webkit-text-stroke: 2px var(--color-accent-1);">
-                Le Goût Authentique
+                Vrais Burgers, Vraies Frites
             </h1>
-            <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-white/90">
-                De vrais burgers, des frites maison comme dans le Nord, et une ambiance 50's. Bienvenue chez vous, à Courthézon.
+            <p class="mt-12 max-w-2xl mx-auto text-lg md:text-xl text-white/90">
+                Le <strong>restaurant</strong> que vous attendiez à <strong>Courthézon</strong>. Wendy's Diner vous propose des <strong>hamburgers</strong> faits maison et des frites authentiques cuites au gras de bœuf, dans une ambiance <strong>diner</strong> simple et conviviale.
             </p>
-            <div class="mt-8">
-                {{-- CORRECTIF : Remplacement de size="lg" par des classes Tailwind --}}
+            <div class="mt-16">
                 <flux:button
                     variant="primary"
                     href="/carte"
                     wire:navigate
-                    class="px-8 py-3 text-lg font-bold"
+                    class="!px-12 py-8 text-xl font-bold"
                 >
                     Découvrir la carte
                 </flux:button>
@@ -105,18 +104,20 @@ new #[Title("Wendy's Diner - Burgers & Frites Maison à Courthézon")] class ext
                 {{-- On utilise maintenant la prop 'titleClasses' pour changer la couleur --}}
                 <x-section-title
                     class="!text-left"
-                    title="Plus qu'un repas, une expérience"
-                    titleClasses="text-accent-2" {{-- <-- LA CORRECTION EST ICI --}}
+                    title="Viande fraîche, frites maison, pains locaux"
+                    titleClasses="text-accent-2"
+                    style="-webkit-text-stroke: 0.1px white;"
                 />
 
                 <p class="text-background/80">
-                    Wendy's Diner, c'est l'histoire d'un rêve né dans le Nord de la France et ressuscité ici, à Courthézon, grâce à la passion et au soutien de notre incroyable communauté. Chaque burger, chaque frite, raconte une partie de notre parcours.
+                    Notre promesse est simple : des ingrédients frais pour un goût authentique. C'est la base de chaque <strong class="text-accent-2">hamburger</strong> que nous servons dans notre <strong class="text-accent-2">restaurant</strong>. La viande de bœuf est sélectionnée avec soin, nos pains sont pétris de manière artisanale à <strong class="text-accent-2">Avignon</strong>, et surtout, nos frites sont fraîches, préparées chaque jour et cuites au gras de bœuf comme le veut la tradition du Nord.
                 </p>
                 <p class="text-background/80">
-                    Nous avons mis tout notre cœur pour recréer l'ambiance authentique des diners américains, un lieu où l'on vient pour la qualité des produits et où l'on reste pour l'atmosphère chaleureuse.
+                    Wendy's Diner n'est pas juste un <strong class="text-accent-2">snack</strong> ou un <strong class="text-accent-2">fast-food</strong> de plus. C'est l'histoire d'une passion pour les authentiques <strong class="text-accent-2">diners</strong> américains et les vraies frites belges, réimaginée ici, au cœur du Vaucluse. Soutenu par une communauté incroyable, notre <strong class="text-accent-2">resto</strong> est un lieu où l'on vient pour la qualité à prix juste, et où l'on reste pour l'ambiance chaleureuse.</p>
+                <p>Vous cherchez le meilleur <strong class="text-accent-2">burger</strong> de <strong class="text-accent-2">Courthézon</strong> ? Un <strong class="text-accent-2">restaurant</strong> où manger des <strong class="text-accent-2">frites</strong> maison près d'<strong class="text-accent-2">Orange</strong> ou <strong class="text-accent-2">Jonquières</strong> ? Ne cherchez plus. Wendy's Diner est votre nouvelle destination pour une expérience unique.
                 </p>
                 <div class="pt-4">
-                    <flux:button variant="ghost" href="/histoire" wire:navigate class="!text-accent-2 !border-accent-2 hover:!bg-accent-2 hover:!text-primary-text">
+                    <flux:button variant="ghost" href="/histoire" wire:navigate class="!text-accent-2 !border-accent-2 border hover:!bg-accent-2 hover:!text-primary-text">
                         Découvrir notre histoire
                     </flux:button>
                 </div>
