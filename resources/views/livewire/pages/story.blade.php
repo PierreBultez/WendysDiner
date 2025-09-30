@@ -22,7 +22,7 @@ new #[Title("Notre Histoire - Wendy's Diner à Courthézon")] class extends Comp
                 title="Notre Histoire"
                 subtitle="L'aventure d'un couple du Nord, de frites belges et d'un rêve américain dans le Vaucluse."
                 titleClasses="!text-white"
-                subtitleClasses="!text-white/80"
+                subtitleClasses="!text-white/80 text-xl"
             />
         </div>
     </div>

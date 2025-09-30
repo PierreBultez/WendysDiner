@@ -20,7 +20,7 @@ new #[Title("Infos Pratiques - Wendy's Diner")] class extends Component
                 title="Infos Pratiques"
                 subtitle="Tout ce que vous devez savoir pour nous trouver et nous contacter."
                 titleClasses="!text-white"
-                subtitleClasses="!text-white/80"
+                subtitleClasses="!text-white/80 text-xl"
             />
         </div>
     </div>
