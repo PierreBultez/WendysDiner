@@ -22,30 +22,31 @@
 
     {{-- Desktop Navigation (hidden on small screens) --}}
     <flux:navbar class="hidden md:flex">
-        <flux:navbar.item href="/" wire:navigate>Accueil</flux:navbar.item>
-        <flux:navbar.item href="/histoire" wire:navigate>L'histoire</flux:navbar.item>
-        <flux:navbar.item href="/carte" wire:navigate>La carte</flux:navbar.item>
-        <flux:navbar.item href="/infos" wire:navigate>Infos</flux:navbar.item>
-        <flux:navbar.item href="{{ route('dashboard.index') }}" wire:navigate>Dashboard</flux:navbar.item>
+        <flux:navbar.item href="/" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Accueil</flux:navbar.item>
+        <flux:navbar.item href="/histoire" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>L'histoire</flux:navbar.item>
+        <flux:navbar.item href="/carte" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>La carte</flux:navbar.item>
+        <flux:navbar.item href="/infos" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Infos</flux:navbar.item>
+        <flux:navbar.item href="{{ route('dashboard.index') }}" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Dashboard</flux:navbar.item>
     </flux:navbar>
 
     {{-- Mobile Navigation (hamburger menu, visible only on small screens) --}}
     <div class="flex items-center md:hidden">
         <flux:dropdown align="end">
+            {{-- Le bouton de déclenchement doit être un enfant DIRECT du dropdown --}}
             <flux:button
                 variant="ghost"
                 icon="bars-3"
                 aria-label="Ouvrir le menu"
             />
-            <x-slot:content>
-                <flux:navmenu class="w-56">
-                    <flux:navmenu.item href="/" wire:navigate>Accueil</flux:navmenu.item>
-                    <flux:navmenu.item href="/histoire" wire:navigate>L'histoire</flux:navmenu.item>
-                    <flux:navmenu.item href="/carte" wire:navigate>La carte</flux:navmenu.item>
-                    <flux:navmenu.item href="/infos" wire:navigate>Infos</flux:navmenu.item>
-                    <flux:navmenu.item href="{{ route('dashboard.index') }}" wire:navigate>Admin</flux:navmenu.item>
-                </flux:navmenu>
-            </x-slot:content>
+
+            {{-- Le contenu du menu va dans le slot "content" --}}
+                <flux:menu class="w-80 !p-5 !bg-background">
+                    <flux:menu.item href="/" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Accueil</flux:menu.item>
+                    <flux:menu.item href="/histoire" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>L'histoire</flux:menu.item>
+                    <flux:menu.item href="/carte" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>La carte</flux:menu.item>
+                    <flux:menu.item href="/infos" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Infos</flux:menu.item>
+                    <flux:menu.item href="{{ route('dashboard.index') }}" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Admin</flux:menu.item>
+                </flux:menu>
         </flux:dropdown>
     </div>
 </flux:header>
