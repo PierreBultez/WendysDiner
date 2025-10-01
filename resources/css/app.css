@@ -90,3 +90,11 @@ textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
     @apply outline-none ring-2 ring-accent-1 ring-offset-2 ring-offset-background;
 }
+
+.data-current\:after\:bg-\(--color-accent-content\) {
+    &[data-current] {
+        &::after {
+            background-color: var(--color-accent-2);
+        }
+    }
+}
