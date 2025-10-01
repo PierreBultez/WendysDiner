@@ -15,8 +15,9 @@
 
 {{-- HEADER & NAVIGATION --}}
 <flux:header class="sticky top-0 z-50 border-b border-primary-text/10 bg-background/80 backdrop-blur-lg">
-    {{-- Brand/Logo --}}
-    <flux:brand href="/" wire:navigate name="Wendy's Diner" class="font-heading text-xl !text-accent-1" />
+    <a href="/" wire:navigate class="font-heading text-4xl text-accent-1 transition-colors hover:text-accent-1/80 px-2">
+        Wendy's Diner
+    </a>
 
     <flux:spacer />
 
