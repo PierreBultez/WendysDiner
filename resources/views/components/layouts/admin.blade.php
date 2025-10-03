@@ -15,6 +15,17 @@
     @vite('resources/css/app.css')
     @fluxAppearance
 </head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BE5JN18EEG"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BE5JN18EEG');
+</script>
+
 <body class="min-h-screen bg-zinc-100 dark:bg-zinc-900">
 {{-- Sidebar for navigation --}}
 <flux:sidebar sticky collapsible="mobile" class="bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700">
