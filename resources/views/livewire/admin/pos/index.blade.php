@@ -42,7 +42,6 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
     {
         $this->categories = Category::has('products')->orderBy('position')->get();
         $this->products = Product::orderBy('name')->get();
-        $this->selectedCategoryId = $this->categories->first()?->id;
         $this->pickupTime = Carbon::now()->format('H:i');
         $this->availableSides = Product::whereHas('category', fn($q) => $q->where('type', 'accompagnement'))->get();
         $this->availableSauces = Product::whereHas('category', fn($q) => $q->where('type', 'sauce'))->get();
