@@ -12,6 +12,10 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
 {
 
     public ?string $successMessage = null;
+    public string $filterStatus = '';
+    public string $filterPickupTime = '';
+    public string $sortColumn = 'pickup_time';
+    public string $sortDirection = 'asc';
 
     /**
      * Provide the list of today's orders to the view.
@@ -20,12 +24,32 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
     #[On('payment-saved')]
     public function with(): array
     {
+        $allTodaysOrders = Order::whereDate('created_at', Carbon::today())->latest()->get();
+
+        $ordersQuery = Order::whereDate('created_at', Carbon::today())
+            ->with('items.product', 'payments')
+            ->when($this->filterStatus, fn ($query) => $query->where('status', $this->filterStatus))
+            ->when($this->filterPickupTime, fn ($query) => $query->whereTime('pickup_time', $this->filterPickupTime))
+            ->orderBy($this->sortColumn, $this->sortDirection); // <-- Apply sorting
+
         return [
-            'orders' => Order::whereDate('created_at', Carbon::today())
-                ->with('items.product', 'payments')
-                ->latest()
-                ->get(),
+            'orders' => $ordersQuery->get(),
+            'statuses' => $allTodaysOrders->pluck('status')->unique(),
+            'pickupTimes' => $allTodaysOrders->pluck('pickup_time')->map(fn($time) => $time?->format('H:i'))->unique()->sort(),
         ];
+    }
+
+    /**
+     * --- NEW: Sorting Method ---
+     */
+    public function sortBy(string $column): void
+    {
+        if ($this->sortColumn === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortColumn = $column;
+            $this->sortDirection = 'asc';
+        }
     }
 
     /**
@@ -44,18 +68,49 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         <h1 class="text-3xl text-primary-text font-bold">Commandes du Jour</h1>
     </div>
 
+    {{-- --- NEW: FILTERS SECTION --- --}}
+    <div class="mb-4 mt-4 m grid grid-cols-1 md:grid-cols-4 gap-4">
+        <flux:select wire:model.live="filterStatus" label="Filtrer par statut">
+            <option value="">Tous les statuts</option>
+            @foreach($statuses as $status)
+                <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+            @endforeach
+        </flux:select>
+
+        <flux:select wire:model.live="filterPickupTime" label="Filtrer par créneau">
+            <option value="">Tous les créneaux</option>
+            @foreach($pickupTimes as $time)
+                @if($time)
+                    <option value="{{ $time }}">{{ $time }}</option>
+                @endif
+            @endforeach
+        </flux:select>
+    </div>
+
+    {{-- Orders Table --}}
     <div class="mt-8 bg-white dark:bg-zinc-800 shadow sm:rounded-lg">
         <div class="relative overflow-x-auto">
             <table class="w-full text-sm text-left text-zinc-500 dark:text-zinc-400">
                 <thead class="text-xs text-zinc-700 uppercase bg-zinc-50 dark:bg-zinc-700 dark:text-zinc-400">
                 <tr>
-                    <th scope="col" class="px-6 py-3"># Commande</th>
-                    <th scope="col" class="px-6 py-3">Heure</th>
+                    {{-- --- UPDATED: Sortable Headers --- --}}
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('id')">
+                        <span class="flex items-center gap-1"># Commande @if($sortColumn === 'id') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                    </th>
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('created_at')">
+                        <span class="flex items-center gap-1">Heure @if($sortColumn === 'created_at') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                    </th>
                     <th scope="col" class="px-6 py-3">Détails</th>
-                    <th scope="col" class="px-6 py-3">Créneau</th>
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('pickup_time')">
+                        <span class="flex items-center gap-1">Créneau @if($sortColumn === 'pickup_time') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                    </th>
                     <th scope="col" class="px-6 py-3">Paiement(s)</th>
-                    <th scope="col" class="px-6 py-3">Total</th>
-                    <th scope="col" class="px-6 py-3">Statut</th>
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('total_amount')">
+                        <span class="flex items-center gap-1">Total @if($sortColumn === 'total_amount') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                    </th>
+                    <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('status')">
+                        <span class="flex items-center gap-1">Statut @if($sortColumn === 'status') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                    </th>
                     <th scope="col" class="relative px-6 py-3 w-1"><span class="sr-only">Actions</span></th>
                 </tr>
                 </thead>
@@ -74,7 +129,7 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
                                     <li>
                                         {{ $item->quantity }}x {{ $item->product->name }}
                                         @if($item->notes)
-                                            <span class="italic text-zinc-500">({{ $item->notes }})</span>
+                                            <span class="italic text-accent-1 font-bold">({{ $item->notes }})</span>
                                         @endif
                                         @if($item->components)
                                             <ul class="pl-4 list-disc list-inside text-zinc-600">
