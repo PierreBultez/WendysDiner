@@ -170,9 +170,15 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
 
         $burger = $this->selectedBurger;
         $side = $this->availableSides->find($this->selectedSideId);
-        $sauce = $this->availableSauces->find($this->selectedSauceId);
+        // On gère le cas spécial "Sans Sauce"
+        if ($this->selectedSauceId === 0) {
+            $sauceName = 'Sans Sauce';
+        } else {
+            $sauce = $this->availableSauces->find($this->selectedSauceId);
+            $sauceName = $sauce->name;
+        }
         $drink = $this->availableDrinks->find($this->selectedDrinkId);
-        $menuId = 'menu_' . $burger->id . '_' . $side->id . '_' . $sauce->id . '_' . $drink->id . '_' . time();
+        $menuId = 'menu_' . $burger->id . '_' . $side->id . '_' . $this->selectedSauceId . '_' . $drink->id . '_' . time();
         $menuPrice = $burger->price + config('wendys.pos.menu_surcharge');
 
         $this->cart[$menuId] = [
@@ -181,7 +187,7 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             'price' => $menuPrice,
             'quantity' => 1,
             'is_menu' => true,
-            'components' => [$burger->name, $side->name, $sauce->name, $drink->name],
+            'components' => [$burger->name, $side->name, $sauceName, $drink->name],
             'notes' => $this->itemNotes
         ];
 
@@ -454,6 +460,14 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
                     <div x-data="{}" x-show="$wire.menuStep === 'sauces'">
                         <h3 class="text-xl font-bold text-center mb-4">Choisissez une sauce</h3>
                         <div class="grid grid-cols-4 gap-4 mb-6">
+                            <button
+                                wire:click="$set('selectedSauceId', 0)"
+                                @click="$wire.menuStep = 'drinks'"
+                                class="bg-accent-2 text-background border rounded-lg p-3 text-center transition-all flex items-center justify-center min-h-[6rem]"
+                                :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSauceId === 0 }"
+                            >
+                                <span class="block text-sm font-bold">Sans Sauce</span>
+                            </button>
                             @foreach($availableSauces as $sauce)
                                 <button
                                     wire:click="$set('selectedSauceId', {{ $sauce->id }})"
