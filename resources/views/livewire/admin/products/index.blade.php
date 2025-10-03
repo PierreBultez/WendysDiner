@@ -4,10 +4,16 @@ use Livewire\Volt\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use App\Models\Product;
+use App\Models\Category;
+use Illuminate\Database\Eloquent\Collection;
 use function Livewire\Volt\with;
 use Livewire\Attributes\On;
 
 new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class extends Component {
+
+    // --- NEW: Filter Properties ---
+    public string $filterCategory = '';
+    public string $filterFeatured = '';
 
     // Sorting
     public string $sortColumn = 'name';
@@ -31,11 +37,29 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class 
     #[On('product-saved')]
     public function with(): array
     {
+        // We still need the list of all categories for the filter dropdown
+        $allCategories = Category::orderBy('name')->get();
+
+        // Build the filtered query for products
+        $productsQuery = Product::with('category')
+            ->when($this->filterCategory, function ($query) {
+                $query->where('category_id', $this->filterCategory);
+            })
+            ->when($this->filterFeatured !== '', function ($query) {
+                $query->where('featured', $this->filterFeatured === 'yes');
+            })
+            ->orderBy($this->sortColumn, $this->sortDirection);
+
         return [
-            'products' => Product::with('category')
-                ->orderBy($this->sortColumn, $this->sortDirection)
-                ->get(),
+            'products' => $productsQuery->get(),
+            'categories' => $allCategories, // Pass all categories to the view for the filter
         ];
+    }
+
+    // --- NEW: Reset Filters Method ---
+    public function resetFilters(): void
+    {
+        $this->reset('filterCategory', 'filterFeatured');
     }
 
     public function sortBy(string $column): void
@@ -106,6 +130,27 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class 
             >
                 Nouveau Produit
             </flux:button>
+        </div>
+    </div>
+
+    {{-- --- NEW: FILTERS SECTION --- --}}
+    <div class="mb-4 mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <flux:select wire:model.live="filterCategory" label="Filtrer par catégorie">
+            <option value="">Toutes les catégories</option>
+            @foreach($categories as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+            @endforeach
+        </flux:select>
+
+        <flux:select wire:model.live="filterFeatured" label="Filtrer par 'En Avant'">
+            <option value="">Tous</option>
+            <option value="yes">Oui</option>
+            <option value="no">Non</option>
+        </flux:select>
+
+        {{-- Button to clear all filters --}}
+        <div class="md:col-start-4 flex items-end">
+            <flux:button wire:click="resetFilters" variant="subtle">Réinitialiser les filtres</flux:button>
         </div>
     </div>
 
