@@ -20,13 +20,13 @@
 </head>
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BE5JN18EEG"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FFK72XRNF1"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', 'G-BE5JN18EEG');
+    gtag('config', 'G-FFK72XRNF1');
 </script>
 
 <body class="min-h-screen flex flex-col">
