@@ -18,6 +18,16 @@
     @fluxAppearance
 </head>
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BE5JN18EEG"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-BE5JN18EEG');
+</script>
+
 <body class="bg-background text-primary-text font-sans antialiased">
 <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
     <div>
