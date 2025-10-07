@@ -14,6 +14,7 @@
 
     @vite('resources/css/app.css')
     @fluxAppearance
+
 </head>
 
 <!-- Google tag (gtag.js) -->
@@ -33,8 +34,9 @@
         <flux:sidebar.brand
             href="{{ route('home') }}"
             wire:navigate
+            logo="{{ asset('images/burger.png') }}"
             name="Wendy's Diner"
-            class="!font-heading !text-accent-1"
+            class="font-heading text-accent-2 text-xl"
         />
         <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
     </flux:sidebar.header>
