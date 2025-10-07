@@ -259,7 +259,7 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         <div class="grid grid-cols-12 h-[calc(100vh-4rem)]">
 
             {{-- MAIN CONTENT: Product Selection (Left Side) --}}
-            <div class="col-span-8 bg-zinc-50 dark:bg-zinc-900 p-6">
+            <div class="col-span-9 bg-zinc-50 dark:bg-zinc-900 p-6">
                 <div class="flex flex-col h-full">
 
                     {{-- Header --}}
@@ -296,14 +296,14 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
                         </div>
 
                         {{-- Products Grid --}}
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 pt-4">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
                             @foreach($products as $product)
                                 <button
                                     wire:key="{{ $product->id }}"
                                     wire:click="handleProductClick({{ $product->id }})"
                                     class="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-3 text-center transition-transform hover:scale-105"
                                 >
-                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-24 object-cover rounded-md mx-auto">
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full aspect-square object-cover rounded-md mx-auto">
                                     <p class="mt-2 text-sm font-bold text-primary-text truncate">{{ $product->name }}</p>
                                     <p class="text-xs text-zinc-500">{{ number_format($product->price, 2, ',', ' ') }} €</p>
                                 </button>
@@ -315,8 +315,8 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             </div>
 
             {{-- SIDEBAR: Cart (Right Side) --}}
-            <aside class="col-span-4 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-6">
-                <div class="flex flex-col h-auto">
+            <aside class="col-span-3 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-6">
+                <div class="flex flex-col h-[90vh]">
 
                     {{-- Cart Header --}}
                     <header class="flex items-center justify-between">
