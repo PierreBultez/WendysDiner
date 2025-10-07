@@ -92,8 +92,8 @@ new class extends Component {
 
         $this->showModal = false;
         // Notify the calling component that the payment is done
-        $this->dispatch('payment-saved');
-        $this->successMessage = 'Paiement enregistré avec succès !';
+        $this->dispatch('payment-saved'); // Pour la page des commandes
+        $this->dispatch('order-fully-paid'); // Pour la page POS
     }
 
     /**

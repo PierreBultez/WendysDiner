@@ -48,6 +48,16 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         $this->availableDrinks = Product::whereHas('category', fn($q) => $q->where('type', 'boisson'))->get();
     }
 
+    /**
+     * Listener for when a payment is successfully processed by the modal.
+     */
+    #[On('order-fully-paid')]
+    public function handleSuccessfulPayment(): void
+    {
+        $this->resetPos();
+        $this->successMessage = 'Commande enregistrée et payée avec succès !';
+    }
+
     // This is the main action to save an order.
     // It can be paid immediately or later.
     public function saveOrder(bool $payLater = false): void
@@ -83,13 +93,14 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             return $order;
         });
 
-        // Si le paiement est immédiat, on ouvre la modale de paiement externe.
-        if (!$payLater) {
+        if ($payLater) {
+            // If paying later, the process ends here. Reset and show toast immediately.
+            $this->resetPos();
+            $this->successMessage = 'Commande enregistrée pour paiement ultérieur.';
+        } else {
+            // If paying now, just open the modal. The toast will be handled by the listener.
             $this->dispatch('show-payment-modal', orderId: $order->id);
         }
-
-        $this->resetPos();
-        $this->successMessage = 'Commande enregistrée avec succès !';
     }
 
     // Réinitialise l'interface de caisse.
