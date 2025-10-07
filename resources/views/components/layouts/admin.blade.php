@@ -28,7 +28,7 @@
 
 <body class="min-h-screen bg-zinc-100 dark:bg-zinc-900">
 {{-- Sidebar for navigation --}}
-<flux:sidebar sticky collapsible="mobile" class="bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700">
+<flux:sidebar sticky collapsible class="bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700">
     <flux:sidebar.header>
         <flux:sidebar.brand
             href="{{ route('home') }}"
@@ -36,6 +36,7 @@
             name="Wendy's Diner"
             class="!font-heading !text-accent-1"
         />
+        <flux:sidebar.collapse class="in-data-flux-sidebar-on-desktop:not-in-data-flux-sidebar-collapsed-desktop:-mr-2" />
     </flux:sidebar.header>
 
     <flux:sidebar.nav>
