@@ -316,7 +316,7 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
 
             {{-- SIDEBAR: Cart (Right Side) --}}
             <aside class="col-span-4 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-6">
-                <div class="flex flex-col h-full">
+                <div class="flex flex-col h-auto">
 
                     {{-- Cart Header --}}
                     <header class="flex items-center justify-between">
