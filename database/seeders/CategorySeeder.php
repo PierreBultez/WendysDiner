@@ -20,6 +20,10 @@ class CategorySeeder extends Seeder
             ['name' => 'Boissons Fraîches', 'position' => 30],
             ['name' => 'Desserts Gourmands', 'position' => 40],
             ['name' => 'Menu Enfant', 'position' => 50],
+            ['name' => 'Salades Repas', 'position' => 60],
+            ['name' => 'Boissons Chaudes', 'position' => 70],
+            ['name' => 'Menus', 'position' => 80],
+
         ];
 
         foreach ($categories as $categoryData) {

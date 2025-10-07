@@ -38,6 +38,15 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
     // --- Toast Notification Management ---
     public ?string $successMessage = null;
 
+    // --- NEW: Kids Menu Flow Management ---
+    public bool $showKidsMenuModal = false;
+    public string $kidsMenuStep = 'choice'; // 'choice', 'sauce', 'cheddar', 'notes'
+    public ?Product $selectedKidsProduct = null;
+    public ?string $kidsMenuChoice = null; // 'burger' or 'chunks'
+    public ?string $kidsMenuSauce = null; // 'Ketchup', 'Mayo', 'Ketchup/Mayo'
+    public ?bool $kidsMenuCheddar = null; // true for yes, false for no
+    public string $kidsMenuItemNotes = '';
+
     public function mount(): void
     {
         $this->categories = Category::has('products')->orderBy('position')->get();
@@ -73,12 +82,12 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
 
             foreach ($this->cart as $item) {
                 $productId = null;
-                if (is_numeric($item['id'])) {
+                if ($item['is_menu']) {
+                    // Si c'est un menu, on utilise l'ID qu'on a sauvegardé.
+                    $productId = $item['product_id_for_db'];
+                } else {
+                    // Si c'est un produit simple, son ID de panier EST l'ID du produit.
                     $productId = $item['id'];
-                } elseif ($item['is_menu']) {
-                    $burgerName = str_replace('Menu ', '', $item['name']);
-                    $product = Product::where('name', $burgerName)->first();
-                    $productId = $product?->id;
                 }
                 if ($productId) {
                     $order->items()->create([
@@ -131,6 +140,9 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         if ($product->category->type === 'burger') {
             $this->selectedBurger = $product;
             $this->showMenuModal = true;
+        } elseif ($product->category->type === 'enfant') { // <-- NEW ROUTE
+            $this->selectedKidsProduct = $product;
+            $this->showKidsMenuModal = true;
         } else {
             $this->addToCart($product);
         }
@@ -197,8 +209,9 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             'price' => $menuPrice,
             'quantity' => 1,
             'is_menu' => true,
-            'components' => [$burger->name, $side->name, $sauceName, $drink->name],
-            'notes' => $this->itemNotes
+            'components' => [$burger->name, $side->name, $sauce->name, $drink->name],
+            'notes' => $this->itemNotes,
+            'product_id_for_db' => $burger->id // <-- ON STOCKE L'ID DU BURGER
         ];
 
         $this->calculateTotal();
@@ -217,6 +230,90 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         $this->selectedSauceId = null;
         $this->selectedDrinkId = null;
         $this->itemNotes = '';
+    }
+
+    /**
+     * Set the choice for the kids menu (burger or chunks) and move to the next step.
+     */
+    public function setKidsMenuChoice(string $choice): void
+    {
+        $this->kidsMenuChoice = $choice;
+        $this->kidsMenuStep = 'sauce';
+    }
+
+    /**
+     * Set the sauce for the kids menu and move to the next step.
+     */
+    public function setKidsMenuSauce(string $sauce): void
+    {
+        $this->kidsMenuSauce = $sauce;
+        // If the choice was chunks, we skip the cheddar step
+        if ($this->kidsMenuChoice === 'chunks') {
+            $this->kidsMenuStep = 'notes';
+        } else {
+            $this->kidsMenuStep = 'cheddar';
+        }
+    }
+
+    /**
+     * Set the cheddar option for the kids burger.
+     */
+    public function setKidsMenuCheddar(bool $hasCheddar): void
+    {
+        $this->kidsMenuCheddar = $hasCheddar;
+        $this->kidsMenuStep = 'notes';
+    }
+
+    /**
+     * Add the complete kids menu to the cart.
+     */
+    public function addKidsMenuToCart(): void
+    {
+        // Build the name and components of the kids menu
+        $name = $this->selectedKidsProduct->name . ' (' . ucfirst($this->kidsMenuChoice) . ')';
+        $components = [
+            ucfirst($this->kidsMenuChoice),
+            'Frites', // Assuming kids menu always includes fries
+            $this->kidsMenuSauce
+        ];
+
+        // Add cheddar to the components if selected
+        if ($this->kidsMenuChoice === 'burger' && $this->kidsMenuCheddar) {
+            $components[] = 'Cheddar';
+        }
+
+        // Generate a unique ID for this specific configuration
+        $cartId = 'kids_menu_' . $this->selectedKidsProduct->id . '_' . time();
+
+        $product = $this->selectedKidsProduct;
+
+        $this->cart[$cartId] = [
+            'id' => $cartId,
+            'name' => $name,
+            'price' => $product->price,
+            'quantity' => 1,
+            'is_menu' => true,
+            'components' => $components,
+            'notes' => $this->kidsMenuItemNotes,
+            'product_id_for_db' => $product->id // <-- ON STOCKE L'ID DU MENU ENFANT
+        ];
+
+        $this->calculateTotal();
+        $this->closeKidsMenuModal();
+    }
+
+    /**
+     * Close and reset the kids menu modal state.
+     */
+    public function closeKidsMenuModal(): void
+    {
+        $this->showKidsMenuModal = false;
+        $this->kidsMenuStep = 'choice';
+        $this->selectedKidsProduct = null;
+        $this->kidsMenuChoice = null;
+        $this->kidsMenuSauce = null;
+        $this->kidsMenuCheddar = null;
+        $this->kidsMenuItemNotes = '';
     }
 
     /**
@@ -526,6 +623,68 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
                             </flux:button>
                         </div>
                     </div>
+                </div>
+            @endif
+        </flux:modal>
+
+        {{-- --- NEW: KIDS MENU MODAL --- --}}
+        <flux:modal
+            wire:model="showKidsMenuModal"
+            name="kids-menu-modal"
+            :title="$selectedKidsProduct?->name"
+            class="w-3xl"
+            @close="closeKidsMenuModal"
+        >
+            @if($selectedKidsProduct)
+                <div>
+                    {{-- STEP 1: Burger or Chunks? --}}
+                    <div x-data="{}" x-show="$wire.kidsMenuStep === 'choice'">
+                        <h3 class="text-3xl text-accent-1 text-center mb-6">Burger ou Chunks ?</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button wire:click="setKidsMenuChoice('burger')" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors text-center">
+                                <span class="text-lg font-bold">Burger</span>
+                            </button>
+                            <button wire:click="setKidsMenuChoice('chunks')" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors text-center">
+                                <span class="text-lg font-bold">Chunks</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- STEP 2: Sauce --}}
+                    <div x-data="{}" x-show="$wire.kidsMenuStep === 'sauce'">
+                        <h3 class="text-3xl text-accent-1 text-center mb-6">Quelle sauce ?</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <button wire:click="setKidsMenuSauce('Ketchup')" class="p-4 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors font-semibold">Ketchup</button>
+                            <button wire:click="setKidsMenuSauce('Mayo')" class="p-4 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors font-semibold">Mayo</button>
+                            <button wire:click="setKidsMenuSauce('Ketchup/Mayo')" class="p-4 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors font-semibold">Ketchup/Mayo</button>
+                        </div>
+                    </div>
+
+                    {{-- STEP 3: Cheddar (only for burgers) --}}
+                    <div x-data="{}" x-show="$wire.kidsMenuStep === 'cheddar'">
+                        <h3 class="text-3xl text-accent-1 text-center mb-6">Cheddar dans le burger ?</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button wire:click="setKidsMenuCheddar(true)" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors font-semibold">Oui</button>
+                            <button wire:click="setKidsMenuCheddar(false)" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:text-background hover:bg-accent-1 dark:hover:bg-zinc-600 transition-colors font-semibold">Non</button>
+                        </div>
+                    </div>
+
+                    {{-- Final Step: Add notes and save --}}
+                    <div x-data="{}" x-show="$wire.kidsMenuStep === 'notes'">
+                        <h3 class="text-3xl text-accent-1 text-center mb-6">Quelquechose à ajouter ?</h3>
+                        <div class="mt-6 pt-4">
+                            <flux:input wire:model="kidsMenuItemNotes" placeholder="Instructions spéciales..." />
+                            <div class="flex justify-end mt-4">
+                                <flux:button
+                                    wire:click="addKidsMenuToCart"
+                                    variant="primary"
+                                    x-data="{}"
+                                    x-show="$wire.kidsMenuChoice && $wire.kidsMenuSauce"
+                                >
+                                    Ajouter au Panier
+                                </flux:button>
+                            </div>
+                        </div>
                 </div>
             @endif
         </flux:modal>
