@@ -116,6 +116,9 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
                             @if($order->delivery_method === 'delivery')
                                 <flux:badge size="sm" color="purple" icon="truck">Livraison</flux:badge>
                                 <p class="text-zinc-500 mt-1">{{ $order->customer_address }}</p>
+                                @if($order->customer_phone)
+                                    <p class="text-zinc-500">{{ $order->customer_phone }}</p>
+                                @endif
                             @else
                                 <flux:badge size="sm" color="blue" icon="shopping-bag">Click & Collect</flux:badge>
                             @endif
