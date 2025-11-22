@@ -141,10 +141,15 @@ new class extends Component {
                 </flux:field>
             </div>
 
-            {{-- Featured Switch --}}
-            <flux:field>
-                <flux:switch wire:model="form.featured" id="featured" label="Mettre en avant sur la page d'accueil"/>
-            </flux:field>
+            {{-- Switches --}}
+            <div class="flex gap-6">
+                <flux:field>
+                    <flux:switch wire:model="form.is_available" id="is_available" label="Disponible à la vente"/>
+                </flux:field>
+                <flux:field>
+                    <flux:switch wire:model="form.featured" id="featured" label="Mettre en avant sur la page d'accueil"/>
+                </flux:field>
+            </div>
 
             {{-- Modal Actions --}}
             <div class="flex justify-end gap-2 pt-4">

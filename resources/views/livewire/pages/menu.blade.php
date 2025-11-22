@@ -89,7 +89,7 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
     public function addToCart(int $productId, ?string $notes = null): void
     {
         $product = Product::find($productId);
-        if (!$product) return;
+        if (!$product || !$product->is_available) return; // Block unavailable products
 
         // Generate simple ID for standalone items
         $cartId = $product->id . ($notes ? '_' . crc32($notes) : '');
@@ -125,7 +125,7 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
     public function handleProductClick(int $productId): void
     {
         $product = Product::find($productId);
-        if (!$product) return;
+        if (!$product || !$product->is_available) return; // Block unavailable products
 
         if ($product->category->type === 'burger') {
             $this->selectedBurger = $product;
@@ -321,22 +321,32 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
                 <h2 class="text-3xl font-bold text-accent-1 mb-8">{{ $this->selectedCategoryName }}</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @forelse($this->filteredProducts as $product)
-                        <x-card class="overflow-hidden flex flex-col h-full group">
+                        <x-card 
+                            wire:click="handleProductClick({{ $product->id }})"
+                            class="overflow-hidden flex flex-col h-full group relative transition-all duration-300 {{ $product->is_available ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : 'opacity-75 grayscale cursor-not-allowed' }}"
+                        >
                             <div class="relative overflow-hidden h-56">
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-300 {{ $product->is_available ? 'group-hover:scale-110' : '' }}">
+                                
+                                @if(!$product->is_available)
+                                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                        <span class="bg-red-600 text-white px-4 py-2 rounded-full font-bold uppercase text-sm transform -rotate-12 border-2 border-white shadow-lg">
+                                            Épuisé
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="p-5 flex flex-col flex-grow">
                                 <h3 class="text-xl font-bold text-accent-1">{{ $product->name }}</h3>
                                 <p class="mt-2 text-primary-text/80 text-sm flex-grow">{{ $product->description }}</p>
                                 <div class="mt-4 pt-4 border-t border-zinc-100 flex justify-between items-center">
                                     <span class="text-xl font-bold text-accent-2">{{ number_format($product->price, 2, ',', ' ') }} €</span>
-                                    <button 
-                                        wire:click="handleProductClick({{ $product->id }})" 
-                                        class="bg-accent-1 hover:bg-accent-1/90 text-white p-2 rounded-full shadow-md transition-colors"
-                                        title="Ajouter au panier"
+                                    {{-- Visual button only, action is on the card --}}
+                                    <div 
+                                        class="p-2 rounded-full shadow-md transition-colors {{ $product->is_available ? 'bg-accent-1 text-white group-hover:bg-accent-1/90' : 'bg-zinc-300 text-zinc-500' }}"
                                     >
                                         <flux:icon name="plus" class="size-6" />
-                                    </button>
+                                    </div>
                                 </div>
                             </div>
                         </x-card>
@@ -354,22 +364,32 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
                         <h2 class="text-3xl font-bold text-accent-1 mb-8 sticky top-[4.5rem] z-20 bg-background/90 backdrop-blur py-2">{{ $category->name }}</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             @foreach($category->products as $product)
-                                <x-card class="overflow-hidden flex flex-col h-full group">
+                                <x-card 
+                                    wire:click="handleProductClick({{ $product->id }})"
+                                    class="overflow-hidden flex flex-col h-full group relative transition-all duration-300 {{ $product->is_available ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : 'opacity-75 grayscale cursor-not-allowed' }}"
+                                >
                                     <div class="relative overflow-hidden h-56">
-                                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-300 {{ $product->is_available ? 'group-hover:scale-110' : '' }}">
+                                        
+                                        @if(!$product->is_available)
+                                            <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                <span class="bg-red-600 text-white px-4 py-2 rounded-full font-bold uppercase text-sm transform -rotate-12 border-2 border-white shadow-lg">
+                                                    Épuisé
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="p-5 flex flex-col flex-grow">
                                         <h3 class="text-xl font-bold text-primary-text">{{ $product->name }}</h3>
                                         <p class="mt-2 text-primary-text/80 text-sm flex-grow">{{ $product->description }}</p>
                                         <div class="mt-4 pt-4 border-t border-zinc-100 flex justify-between items-center">
                                             <span class="text-xl font-bold text-accent-2">{{ number_format($product->price, 2, ',', ' ') }} €</span>
-                                            <button 
-                                                wire:click="handleProductClick({{ $product->id }})" 
-                                                class="bg-accent-1 hover:bg-accent-1/90 text-white p-2 rounded-full shadow-md transition-colors"
-                                                title="Ajouter au panier"
+                                            {{-- Visual button only --}}
+                                            <div 
+                                                class="p-2 rounded-full shadow-md transition-colors {{ $product->is_available ? 'bg-accent-1 text-white group-hover:bg-accent-1/90' : 'bg-zinc-300 text-zinc-500' }}"
                                             >
                                                 <flux:icon name="plus" class="size-6" />
-                                            </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </x-card>
