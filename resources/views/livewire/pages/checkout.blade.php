@@ -53,6 +53,17 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
         $service = app(CartService::class);
         $this->cart = $service->get();
         $this->total = $service->total();
+        
+        // Add delivery surcharge if applicable
+        if ($this->deliveryMethod === 'delivery') {
+            $this->total += 2.00;
+        }
+    }
+
+    public function updatedDeliveryMethod(): void
+    {
+        $this->refreshCart();
+        // Also need to re-validate or re-generate slots if delivery rules differ? No, logic seems same for now.
     }
 
     public function generateSlots(): void
