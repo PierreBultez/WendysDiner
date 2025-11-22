@@ -95,6 +95,15 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class 
         $this->dispatch('$refresh');
     }
 
+    // --- Toggle Availability ---
+    public function toggleAvailability(int $productId): void
+    {
+        $product = Product::find($productId);
+        if ($product) {
+            $product->update(['is_available' => !$product->is_available]);
+        }
+    }
+
     // --- Bulk Delete ---
     public function confirmBulkDelete(): void
     {
@@ -173,6 +182,7 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class 
                             Prix @if($sortColumn === 'price') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif
                         </span>
                     </th>
+                    <th scope="col" class="px-6 py-3">Dispo.</th> {{-- NEW --}}
                     <th scope="col" class="px-6 py-3 cursor-pointer" wire:click="sortBy('featured')">
                          <span class="flex items-center gap-1">
                             En Avant @if($sortColumn === 'featured') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif
@@ -195,6 +205,12 @@ new #[Layout('components.layouts.admin')] #[Title('Gérer les Produits')] class 
                         </th>
                         <td class="px-6 py-4">{{ $product->category->name }}</td>
                         <td class="px-6 py-4">{{ number_format($product->price, 2, ',', ' ') }} €</td>
+                        <td class="px-6 py-4">
+                            <flux:switch
+                                wire:change="toggleAvailability({{ $product->id }})"
+                                :checked="$product->is_available"
+                            />
+                        </td>
                         <td class="px-6 py-4">
                             @if($product->featured)
                                 <flux:badge color="lime" variant="solid" icon="star">{{ __('Oui') }}</flux:badge>

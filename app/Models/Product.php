@@ -20,6 +20,7 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'is_available',
         'featured',
         'image_url',
         'category_id',
@@ -32,6 +33,7 @@ class Product extends Model
      */
     protected $casts = [
         'featured' => 'boolean',
+        'is_available' => 'boolean',
     ];
 
     /**

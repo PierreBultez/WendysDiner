@@ -30,6 +30,9 @@ class ProductForm extends Form
     #[Validate('boolean')]
     public bool $featured = false;
 
+    #[Validate('boolean')]
+    public bool $is_available = true;
+
     // We keep the image_url to reset it if needed, but it's not a form field anymore.
     public string $image_url = '';
 
@@ -44,6 +47,7 @@ class ProductForm extends Form
         $this->price = $product->price;
         $this->category_id = $product->category_id;
         $this->featured = $product->featured;
+        $this->is_available = $product->is_available;
         $this->image_url = $product->image_url;
     }
 
@@ -63,6 +67,7 @@ class ProductForm extends Form
             'category_id' => $this->category_id,
             'image_url' => $imageUrl,
             'featured' => $this->featured,
+            'is_available' => $this->is_available,
         ]);
 
         $this->reset();
@@ -84,6 +89,7 @@ class ProductForm extends Form
             'category_id' => $this->category_id,
             'image_url' => $imageUrl,
             'featured' => $this->featured,
+            'is_available' => $this->is_available,
         ]);
 
         $this->reset();
