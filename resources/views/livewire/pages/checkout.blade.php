@@ -465,7 +465,12 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
                         return;
                     }
     
-                    RevolutCheckout(token, $wire.revolutMode).then(function(instance) {
+                    // Determine mode: 'sandbox' or nothing (for production)
+                    let mode = $wire.revolutMode === 'sandbox' ? 'sandbox' : null;
+                    
+                    console.log('🚀 Initializing RevolutCheckout:', { token, mode, wireMode: $wire.revolutMode });
+
+                    RevolutCheckout(token, mode).then(function(instance) {
                         instance.payWithPopup({
                             name: $wire.customer_name,
                             email: $wire.customer_email,
