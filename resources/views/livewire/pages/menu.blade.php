@@ -53,9 +53,17 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
             ->orderBy('position')
             ->get();
 
-        $this->availableSides = Product::whereHas('category', fn($q) => $q->where('type', 'accompagnement'))->get();
-        $this->availableSauces = Product::whereHas('category', fn($q) => $q->where('type', 'sauce'))->get();
-        $this->availableDrinks = Product::whereHas('category', fn($q) => $q->where('type', 'boisson'))->get();
+        $this->availableSides = Product::whereHas('category', fn($q) => $q->where('type', 'accompagnement'))
+            ->where('is_available', true)
+            ->get();
+            
+        $this->availableSauces = Product::whereHas('category', fn($q) => $q->where('type', 'sauce'))
+            ->where('is_available', true)
+            ->get();
+            
+        $this->availableDrinks = Product::whereHas('category', fn($q) => $q->where('type', 'boisson'))
+            ->where('is_available', true)
+            ->get();
 
         $this->refreshCart();
     }
