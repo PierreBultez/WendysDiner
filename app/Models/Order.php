@@ -20,6 +20,12 @@ class Order extends Model
         'status',
         'pickup_time',
         'notes',
+        'customer_name',
+        'customer_email',
+        'customer_phone',
+        'customer_address',
+        'delivery_method',
+        'payment_method',
     ];
 
     protected $casts = [

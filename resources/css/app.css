@@ -98,3 +98,13 @@ select:focus[data-flux-control] {
         }
     }
 }
+
+.\[\:where\(\&\)\]\:text-zinc-800 {
+    :where(&) {
+        color: unset;
+    }
+}
+
+body > ui-sidebar > div.flex.items-center.justify-between.gap-2.min-h-10 > a > div.text-sm.font-medium.truncate.\[\:where\(\&\)\]\:text-zinc-800.dark\:\[\:where\(\&\)\]\:text-zinc-100.in-data-flux-sidebar-collapsed-desktop\:hidden {
+    font-size: unset;
+}

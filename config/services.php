@@ -40,4 +40,9 @@ return [
         'place_id' => env('GOOGLE_PLACE_ID'),
     ],
 
+    'revolut' => [
+        'key' => env('REVOLUT_API_KEY'), // Secret Key (Sandbox or Prod)
+        'mode' => env('REVOLUT_MODE', 'sandbox'), // sandbox or prod
+    ],
+
 ];
