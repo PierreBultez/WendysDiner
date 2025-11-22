@@ -23,7 +23,7 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
     
     // Options
     public string $deliveryMethod = 'pickup'; // pickup, delivery
-    public string $paymentMethod = 'card_terminal'; // card_terminal (sur place), cash (sur place), revolut
+    public string $paymentMethod = 'revolut'; // DEFAULT: revolut
     
     // Scheduling
     public string $selectedSlot = '';
@@ -212,7 +212,8 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
             app(CartService::class)->clear();
             $this->redirectRoute('success');
 
-        } catch (\Exception $e) {
+        } catch (
+Exception $e) {
             // CLEANUP: If order was created but API failed, delete it to free up the slot
             if ($createdOrderId) {
                 Order::where('id', $createdOrderId)->delete();
@@ -345,23 +346,31 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
                 <section class="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
                     <h2 class="text-xl font-bold text-accent-1 mb-6 border-b pb-2">4. Paiement</h2>
                     <div class="space-y-3">
-                         <label @class(['flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors', 'border-accent-1 ring-1 ring-accent-1' => $paymentMethod === 'revolut', 'border-zinc-200' => $paymentMethod !== 'revolut'])>
-                            <input type="radio" wire:model="paymentMethod" value="revolut" class="sr-only">
+                         <!-- Revolut Option -->
+                         <label 
+                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors"
+                            :class="$wire.paymentMethod === 'revolut' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200'"
+                         >
+                            <input type="radio" wire:model.live="paymentMethod" value="revolut" class="sr-only">
                             <div class="flex items-center gap-3">
-                                <div @class(['w-5 h-5 rounded-full border-2 flex items-center justify-center', 'border-accent-1' => $paymentMethod === 'revolut', 'border-zinc-300' => $paymentMethod !== 'revolut'])>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="$wire.paymentMethod === 'revolut' ? 'border-accent-1' : 'border-zinc-300'">
                                     <div class="w-2.5 h-2.5 rounded-full bg-accent-1" x-show="$wire.paymentMethod === 'revolut'"></div>
                                 </div>
                                 <div>
-                                    <span class="font-bold block">Carte Bancaire (Revolut)</span>
+                                    <span class="font-bold block">Carte Bancaire (en ligne)</span>
                                     <span class="text-xs text-zinc-500">Paiement sécurisé immédiat</span>
                                 </div>
                             </div>
                         </label>
 
-                        <label @class(['flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors', 'border-accent-1 ring-1 ring-accent-1' => $paymentMethod === 'card_terminal', 'border-zinc-200' => $paymentMethod !== 'card_terminal'])>
-                            <input type="radio" wire:model="paymentMethod" value="card_terminal" class="sr-only">
+                        <!-- Card Terminal Option -->
+                        <label 
+                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors"
+                            :class="$wire.paymentMethod === 'card_terminal' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200'"
+                        >
+                            <input type="radio" wire:model.live="paymentMethod" value="card_terminal" class="sr-only">
                             <div class="flex items-center gap-3">
-                                <div @class(['w-5 h-5 rounded-full border-2 flex items-center justify-center', 'border-accent-1' => $paymentMethod === 'card_terminal', 'border-zinc-300' => $paymentMethod !== 'card_terminal'])>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="$wire.paymentMethod === 'card_terminal' ? 'border-accent-1' : 'border-zinc-300'">
                                     <div class="w-2.5 h-2.5 rounded-full bg-accent-1" x-show="$wire.paymentMethod === 'card_terminal'"></div>
                                 </div>
                                 <div>
@@ -371,14 +380,18 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
                             </div>
                         </label>
 
-                         <label @class(['flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors', 'border-accent-1 ring-1 ring-accent-1' => $paymentMethod === 'cash', 'border-zinc-200' => $paymentMethod !== 'cash'])>
-                            <input type="radio" wire:model="paymentMethod" value="cash" class="sr-only">
+                         <!-- Cash Option -->
+                         <label 
+                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors"
+                            :class="$wire.paymentMethod === 'cash' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200'"
+                        >
+                            <input type="radio" wire:model.live="paymentMethod" value="cash" class="sr-only">
                             <div class="flex items-center gap-3">
-                                <div @class(['w-5 h-5 rounded-full border-2 flex items-center justify-center', 'border-accent-1' => $paymentMethod === 'cash', 'border-zinc-300' => $paymentMethod !== 'cash'])>
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="$wire.paymentMethod === 'cash' ? 'border-accent-1' : 'border-zinc-300'">
                                     <div class="w-2.5 h-2.5 rounded-full bg-accent-1" x-show="$wire.paymentMethod === 'cash'"></div>
                                 </div>
                                 <div>
-                                    <span class="font-bold block">Espèces</span>
+                                    <span class="font-bold block">Espèces (Sur place / Livraison)</span>
                                     <span class="text-xs text-zinc-500">Au moment du retrait</span>
                                 </div>
                             </div>
