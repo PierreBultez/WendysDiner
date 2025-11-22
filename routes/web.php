@@ -8,6 +8,8 @@ Volt::route('/', 'pages.home')->name('home');
 Volt::route('/histoire', 'pages.story')->name('story');
 Volt::route('/infos', 'pages.infos')->name('infos');
 Volt::route('/carte', 'pages.menu')->name('menu');
+Volt::route('/checkout', 'pages.checkout')->name('checkout');
+Volt::route('/commande-confirmee', 'pages.success')->name('success');
 
 // ADMIN DASHBOARD ROUTES
 Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {

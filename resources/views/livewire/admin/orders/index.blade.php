@@ -30,7 +30,7 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
             ->with('items.product', 'payments')
             ->when($this->filterStatus, fn ($query) => $query->where('status', $this->filterStatus))
             ->when($this->filterPickupTime, fn ($query) => $query->whereTime('pickup_time', $this->filterPickupTime))
-            ->orderBy($this->sortColumn, $this->sortDirection); // <-- Apply sorting
+            ->orderBy($this->sortColumn, $this->sortDirection);
 
         return [
             'orders' => $ordersQuery->get(),
@@ -39,9 +39,6 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         ];
     }
 
-    /**
-     * --- NEW: Sorting Method ---
-     */
     public function sortBy(string $column): void
     {
         if ($this->sortColumn === $column) {
@@ -52,10 +49,6 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         }
     }
 
-    /**
-     * Mark an order as 'completed'.
-     * Using route-model binding for convenience and security.
-     */
     public function completeOrder(Order $order): void
     {
         $order->update(['status' => 'terminée']);
@@ -68,7 +61,7 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         <h1 class="text-3xl text-primary-text font-bold">Commandes du Jour</h1>
     </div>
 
-    {{-- --- NEW: FILTERS SECTION --- --}}
+    {{-- --- FILTERS SECTION --- --}}
     <div class="mb-4 mt-4 m grid grid-cols-1 md:grid-cols-4 gap-4">
         <flux:select wire:model.live="filterStatus" label="Filtrer par statut">
             <option value="">Tous les statuts</option>
@@ -90,20 +83,21 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
     {{-- Orders Grid --}}
     <div class="mt-8">
         {{-- Grid Header --}}
-        <div class="grid grid-cols-9 gap-x-6 px-6 py-3 text-xs text-zinc-700 uppercase bg-zinc-50 dark:bg-zinc-700 dark:text-zinc-400 font-bold rounded-t-lg">
+        <div class="grid grid-cols-12 gap-x-4 px-6 py-3 text-xs text-zinc-700 uppercase bg-zinc-50 dark:bg-zinc-700 dark:text-zinc-400 font-bold rounded-t-lg">
             <div class="cursor-pointer" wire:click="sortBy('id')">
-                <span class="flex items-center gap-1"># Commande @if($sortColumn === 'id') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                <span class="flex items-center gap-1"># <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /></span>
             </div>
-            <div class="col-span-3">Détails</div>
+            <div class="col-span-2">Client</div> {{-- NEW COLUMN --}}
+            <div class="col-span-4">Détails</div>
             <div class="cursor-pointer" wire:click="sortBy('pickup_time')">
-                <span class="flex items-center gap-1">Créneau @if($sortColumn === 'pickup_time') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                <span class="flex items-center gap-1">Créneau <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /></span>
             </div>
-            <div>Paiement(s)</div>
+            <div>Paiement</div>
             <div class="cursor-pointer" wire:click="sortBy('total_amount')">
-                <span class="flex items-center gap-1">Total @if($sortColumn === 'total_amount') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                <span class="flex items-center gap-1">Total <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /></span>
             </div>
             <div class="cursor-pointer" wire:click="sortBy('status')">
-                <span class="flex items-center gap-1">Statut @if($sortColumn === 'status') <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /> @endif</span>
+                <span class="flex items-center gap-1">Statut <flux:icon name="{{ $sortDirection === 'asc' ? 'chevron-up' : 'chevron-down' }}" class="size-3" /></span>
             </div>
             <div>Actions</div>
         </div>
@@ -111,17 +105,32 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         {{-- Grid Body --}}
         <div class="space-y-2 mt-2">
             @forelse($orders as $order)
-                <div wire:key="{{ $order->id }}" class="grid grid-cols-9 gap-x-6 items-center px-6 py-4 bg-white dark:bg-zinc-800 shadow rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 text-sm">
+                <div wire:key="{{ $order->id }}" class="grid grid-cols-12 gap-x-4 items-center px-6 py-4 bg-white dark:bg-zinc-800 shadow rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-700 text-sm">
                     <div class="font-medium text-zinc-900 whitespace-nowrap dark:text-white">
                         {{ $order->id }}
                     </div>
-                    <div class="col-span-3">
+                    {{-- CUSTOMER INFO --}}
+                    <div class="col-span-2 text-xs">
+                        @if($order->customer_name)
+                            <p class="font-bold">{{ $order->customer_name }}</p>
+                            @if($order->delivery_method === 'delivery')
+                                <flux:badge size="sm" color="purple" icon="truck">Livraison</flux:badge>
+                                <p class="text-zinc-500 mt-1">{{ $order->customer_address }}</p>
+                            @else
+                                <flux:badge size="sm" color="blue" icon="shopping-bag">Click & Collect</flux:badge>
+                            @endif
+                        @else
+                            <span class="text-zinc-400 italic">Commande TPE/Caisse</span>
+                        @endif
+                    </div>
+                    {{-- DETAILS --}}
+                    <div class="col-span-4">
                         <ul class="text-base">
                             @foreach($order->items as $item)
                                 <li>
-                                    {{ $item->quantity }}x {{ $item->product->name }}
+                                    {{ $item->quantity }}x {{ $item->product?->name ?? 'Produit Inconnu' }}
                                     @if($item->notes)
-                                        <span class="italic text-accent-1 font-bold text-base">({{ $item->notes }})</span>
+                                        <span class="italic text-accent-1 font-bold text-xs">({{ $item->notes }})</span>
                                     @endif
                                     @if($item->components)
                                         <ul class="pl-4 list-disc list-inside text-zinc-500 text-xs">
@@ -138,11 +147,19 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
                         <flux:badge size="lg" color="cyan" variant="solid">{{ $order->pickup_time ? $order->pickup_time->format('H:i') : '-' }}</flux:badge>
                     </div>
                     <div>
-                        @forelse($order->payments as $payment)
-                            <flux:badge class="capitalize">{{ $payment->method }}</flux:badge>
-                        @empty
-                            <flux:badge color="red" variant="outline">Aucun</flux:badge>
-                        @endforelse
+                        @if($order->payment_method === 'revolut')
+                            <flux:badge color="indigo">Revolut</flux:badge>
+                        @elseif($order->payment_method === 'cash')
+                            <flux:badge color="green">Espèces</flux:badge>
+                        @elseif($order->payment_method === 'card_terminal')
+                            <flux:badge color="zinc">CB TPE</flux:badge>
+                        @else
+                            @forelse($order->payments as $payment)
+                                <flux:badge class="capitalize">{{ $payment->method }}</flux:badge>
+                            @empty
+                                <flux:badge color="red" variant="outline">Non payé</flux:badge>
+                            @endforelse
+                        @endif
                     </div>
                     <div class="font-bold">
                         {{ number_format($order->total_amount, 2, ',', ' ') }} €
@@ -165,50 +182,22 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
                     </div>
                 </div>
             @empty
-                <div class="px-6 py-12 text-center text-zinc-500 bg-white dark:bg-zinc-800 rounded-lg shadow">
+                <div class="col-span-12 px-6 py-12 text-center text-zinc-500 bg-white dark:bg-zinc-800 rounded-lg shadow">
                     Aucune commande enregistrée pour aujourd'hui.
                 </div>
             @endforelse
         </div>
     </div>
-    {{-- On inclut la modale globale pour qu'elle puisse écouter les événements --}}
     <livewire:admin.partials.payment-modal />
-
-    {{-- --- TOAST --- --}}
+    
     @if ($successMessage)
         <div
             x-data="{ show: true }"
             x-init="setTimeout(() => { $wire.set('successMessage', null) }, 3000)"
             x-show="show"
-            x-transition:enter="transform ease-out duration-300 transition"
-            x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-            x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed top-20 right-4 z-50 max-w-sm w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5"
+            class="fixed top-20 right-4 z-50 max-w-sm w-full bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-4"
         >
-            <div class="p-4">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <flux:icon name="check-circle" class="size-6 text-green-500" />
-                    </div>
-                    <div class="ml-3 w-0 flex-1 pt-0.5">
-                        <p class="text-sm font-medium text-primary-text dark:text-white">
-                            Succès !
-                        </p>
-                        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                            {{ $successMessage }}
-                        </p>
-                    </div>
-                    <div class="ml-4 flex-shrink-0 flex">
-                        <button @click="$wire.set('successMessage', null)" class="inline-flex text-zinc-400 hover:text-zinc-500">
-                            <span class="sr-only">Fermer</span>
-                            <flux:icon name="x-mark" class="size-5" />
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <p class="text-green-600 font-bold">{{ $successMessage }}</p>
         </div>
     @endif
 </div>
