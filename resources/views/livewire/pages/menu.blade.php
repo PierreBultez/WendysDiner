@@ -456,6 +456,15 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
                             <h4 class="font-bold text-primary-text">{{ $item['name'] }}</h4>
                             @if($item['is_menu'])
                                 <p class="text-xs text-zinc-500">{{ implode(', ', $item['components']) }}</p>
+                                <p class="text-xs text-accent-1 mt-1">
+                                    @php
+                                        $basePrice = \App\Models\Product::find($item['product_id_for_db'])->price;
+                                        $menuSurcharge = config('wendys.pos.menu_surcharge');
+                                        $beerSurcharge = str_contains(implode(', ', $item['components']), '3 Monts') ? 2.00 : 0.00;
+                                    @endphp
+                                    (Base: {{ number_format($basePrice, 2, ',', ' ') }} € + Menu: {{ number_format($menuSurcharge, 2, ',', ' ') }} € 
+                                    @if($beerSurcharge > 0) + Bière: {{ number_format($beerSurcharge, 2, ',', ' ') }} € @endif)
+                                </p>
                             @endif
                             @if(!empty($item['notes']))
                                 <p class="text-xs text-accent-1 italic">{{ $item['notes'] }}</p>
@@ -510,99 +519,101 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
                             <flux:input wire:model="itemNotes" placeholder="Instructions spéciales (ex: sans cornichons)..." />
                         </div>
                         <p class="text-lg text-primary-text/80 mb-6">Comment souhaitez-vous ajouter ce burger ?</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <button wire:click="addBurgerAsSolo" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors">
-                                <span class="text-lg font-bold">Seul</span>
-                                <span class="block text-sm text-zinc-500">{{ number_format($selectedBurger->price, 2, ',', ' ') }} €</span>
-                            </button>
-                            <button @click="$wire.menuStep = 'sides'" class="p-6 bg-accent-1 text-white rounded-lg hover:bg-accent-1/90 transition-colors">
-                                <span class="text-lg font-bold">En Menu</span>
-                                <span class="block text-sm opacity-80">+ {{ number_format(config('wendys.pos.menu_surcharge'), 2, ',', ' ') }} €</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- STEP 2: Choose Side --}}
-                <div x-data="{}" x-show="$wire.menuStep === 'sides'">
-                    <h3 class="text-xl font-bold text-center mb-4">Choisissez un accompagnement</h3>
-                    <div class="grid grid-cols-3 gap-4">
-                        @foreach($availableSides as $side)
-                            <button
-                                wire:click="$set('selectedSideId', {{ $side->id }})"
-                                @click="$wire.menuStep = 'sauces'"
-                                class="border rounded-lg p-3 text-center transition-all"
-                                :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSideId == {{ $side->id }} }"
-                            >
-                                <img src="{{ $side->image_url }}" alt="{{ $side->name }}" class="w-full h-24 object-cover rounded-md mx-auto">
-                                <span class="block mt-2 text-sm font-bold">{{ $side->name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                </div>
-
-                {{-- STEP 3: Choose Sauce --}}
-                <div x-data="{}" x-show="$wire.menuStep === 'sauces'">
-                    <h3 class="text-xl font-bold text-center mb-4">Choisissez une sauce</h3>
-                    <div class="grid grid-cols-4 gap-4 mb-6">
-                        <button
-                            wire:click="$set('selectedSauceId', 0)"
-                            @click="$wire.menuStep = 'drinks'"
-                            class="bg-accent-2 text-background border rounded-lg p-3 text-center transition-all flex items-center justify-center min-h-[6rem]"
-                            :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSauceId === 0 }"
-                        >
-                            <span class="block text-sm font-bold">Sans Sauce</span>
-                        </button>
-                        @foreach($availableSauces as $sauce)
-                            <button
-                                wire:click="$set('selectedSauceId', {{ $sauce->id }})"
-                                @click="$wire.menuStep = 'drinks'"
-                                class="border rounded-lg p-3 text-center transition-all"
-                                :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSauceId == {{ $sauce->id }} }"
-                            >
-                                <span class="block text-sm font-bold">{{ $sauce->name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                     <div class="flex justify-start">
-                        <button @click="$wire.menuStep = 'sides'" class="text-sm font-bold hover:underline">
-                            &larr; Retour aux accompagnements
-                        </button>
-                    </div>
-                </div>
-
-                {{-- STEP 4: Choose Drink & Confirm --}}
-                <div x-data="{}" x-show="$wire.menuStep === 'drinks'">
-                    <h3 class="text-xl font-bold text-center mb-4">Choisissez une boisson</h3>
-                    <div class="grid grid-cols-4 gap-4 mb-6">
-                        @foreach($availableDrinks as $drink)
-                            <button
-                                wire:click="$set('selectedDrinkId', {{ $drink->id }})"
-                                class="border rounded-lg p-3 text-center transition-all"
-                                :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedDrinkId == {{ $drink->id }} }"
-                            >
-                                <img src="{{ $drink->image_url }}" alt="{{ $drink->name }}" class="w-full h-20 object-cover rounded-md mx-auto">
-                                <span class="block mt-2 text-xs font-bold">{{ $drink->name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-                    <div class="flex justify-between items-center mt-6 pt-4 border-t">
-                        <button @click="$wire.menuStep = 'sauces'" class="text-sm font-bold hover:underline">
-                            &larr; Retour aux sauces
-                        </button>
-                        <flux:button
-                            wire:click="addMenuToCart"
-                            variant="primary"
-                            x-data="{}"
-                            x-bind:disabled="!$wire.selectedDrinkId"
-                        >
-                            Ajouter le Menu au Panier
-                        </flux:button>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </flux:modal>
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <button wire:click="addBurgerAsSolo" class="p-6 bg-zinc-100 dark:bg-zinc-700 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors">
+                                                            <span class="text-lg font-bold">Seul</span>
+                                                            <span class="block text-sm text-zinc-500">{{ number_format($selectedBurger->price, 2, ',', ' ') }} €</span>
+                                                        </button>
+                                                        <button @click="$wire.menuStep = 'sides'" class="p-6 bg-accent-1 text-white rounded-lg hover:bg-accent-1/90 transition-colors">
+                                                            <span class="text-lg font-bold">En Menu</span>
+                                                            <span class="block text-sm opacity-80">+ {{ number_format(config('wendys.pos.menu_surcharge'), 2, ',', ' ') }} €</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                        
+                                            {{-- STEP 2: Choose Side --}}
+                                            <div x-data="{}" x-show="$wire.menuStep === 'sides'">
+                                                <h3 class="text-xl font-bold text-center mb-4">Choisissez un accompagnement</h3>
+                                                <div class="grid grid-cols-3 gap-4">
+                                                    @foreach($availableSides as $side)
+                                                        <button
+                                                            wire:click="$set('selectedSideId', {{ $side->id }})"
+                                                            @click="$wire.menuStep = 'sauces'"
+                                                            class="border rounded-lg p-3 text-center transition-all"
+                                                            :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSideId == {{ $side->id }} }"
+                                                        >
+                                                            <img src="{{ $side->image_url }}" alt="{{ $side->name }}" class="w-full h-24 object-cover rounded-md mx-auto">
+                                                            <span class="block mt-2 text-sm font-bold">{{ $side->name }}</span>
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                        
+                                            {{-- STEP 3: Choose Sauce (NEW) --}}
+                                            <div x-data="{}" x-show="$wire.menuStep === 'sauces'">
+                                                <h3 class="text-xl font-bold text-center mb-4">Choisissez une sauce</h3>
+                                                <div class="grid grid-cols-4 gap-4 mb-6">
+                                                    <button
+                                                        wire:click="$set('selectedSauceId', 0)"
+                                                        @click="$wire.menuStep = 'drinks'"
+                                                        class="bg-accent-2 text-background border rounded-lg p-3 text-center transition-all flex items-center justify-center min-h-[6rem]"
+                                                        :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSauceId === 0 }"
+                                                    >
+                                                        <span class="block text-sm font-bold">Sans Sauce</span>
+                                                    </button>
+                                                    @foreach($availableSauces as $sauce)
+                                                        <button
+                                                            wire:click="$set('selectedSauceId', {{ $sauce->id }})"
+                                                            @click="$wire.menuStep = 'drinks'"
+                                                            class="border rounded-lg p-3 text-center transition-all"
+                                                            :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedSauceId == {{ $sauce->id }} }"
+                                                        >
+                                                            <span class="block text-sm font-bold">{{ $sauce->name }}</span>
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                                <div class="flex justify-start">
+                                                    <button @click="$wire.menuStep = 'sides'" class="text-sm font-bold hover:underline">
+                                                        &larr; Retour aux accompagnements
+                                                    </button>
+                                                </div>
+                                            </div>
+                        
+                                            {{-- STEP 4: Choose Drink & Confirm --}}
+                                            <div x-data="{}" x-show="$wire.menuStep === 'drinks'">
+                                                <h3 class="text-xl font-bold text-center mb-4">Choisissez une boisson</h3>
+                                                <div class="grid grid-cols-4 gap-4 mb-6">
+                                                    @foreach($availableDrinks as $drink)
+                                                        <button
+                                                            wire:click="$set('selectedDrinkId', {{ $drink->id }})"
+                                                            class="border rounded-lg p-3 text-center transition-all relative overflow-hidden"
+                                                            :class="{ 'border-accent-1 ring-2 ring-accent-1': $wire.selectedDrinkId == {{ $drink->id }} }"
+                                                        >
+                                                            <img src="{{ $drink->image_url }}" alt="{{ $drink->name }}" class="w-full h-20 object-cover rounded-md mx-auto">
+                                                            <span class="block mt-2 text-xs font-bold">{{ $drink->name }}</span>
+                                                            @if($drink->name === '3 Monts Blonde 33 cl')
+                                                                <span class="absolute top-0 right-0 bg-accent-1 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-md">+2€</span>
+                                                            @endif
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                                <div class="flex justify-between items-center mt-6 pt-4 border-t">
+                                                    <button @click="$wire.menuStep = 'sauces'" class="text-sm font-bold hover:underline">
+                                                        &larr; Retour aux sauces
+                                                    </button>
+                                                    <flux:button
+                                                        wire:click="addMenuToCart"
+                                                        variant="primary"
+                                                        x-data="{}"
+                                                        x-bind:disabled="!$wire.selectedDrinkId"
+                                                    >
+                                                        Ajouter le Menu au Panier
+                                                    </flux:button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif    </flux:modal>
 
     {{-- KIDS MENU MODAL --}}
     <flux:modal
