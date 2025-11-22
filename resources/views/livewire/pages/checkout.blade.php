@@ -440,11 +440,16 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
                 if (d.getElementById(id)) return;
                 js = d.createElement(s);
                 js.id = id;
-                // Load the correct script based on mode. 
-                // Note: Revolut documentation usually points to a single embed.js which handles mode internally or via token, 
-                // BUT for the Merchant API widget, the npm package is standard. 
-                // Since npm import failed in browser, we use the official UMD build via CDN which exposes a global variable.
-                js.src = "https://merchant.revolut.com/embed.js"; 
+                
+                // DYNAMIC SCRIPT LOADING BASED ON MODE
+                // We check a global variable or data attribute set by Blade
+                // Since we are in Blade, we can inject the URL directly.
+                var isSandbox = @json(config('services.revolut.mode') === 'sandbox');
+                var scriptUrl = isSandbox 
+                    ? "https://sandbox-merchant.revolut.com/embed.js" 
+                    : "https://merchant.revolut.com/embed.js";
+
+                js.src = scriptUrl; 
                 fjs.parentNode.insertBefore(js, fjs);
             }(document, 'script', 'revolut-checkout'));
         </script>
