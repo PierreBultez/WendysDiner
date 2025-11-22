@@ -310,7 +310,7 @@ Exception $e) {
                             ])
                         >
                             <flux:icon name="truck" class="size-8" class="{{ $deliveryMethod === 'delivery' ? 'text-accent-1' : 'text-zinc-400' }}" />
-                            <span @class(['font-bold', 'text-accent-1' => $deliveryMethod === 'delivery', 'text-zinc-600' => $deliveryMethod !== 'delivery'])>Livraison</span>
+                            <span @class(['font-bold', 'text-accent-1' => $deliveryMethod === 'delivery', 'text-zinc-600' => $deliveryMethod !== 'delivery'])>Livraison (+2,00 €)</span>
                         </button>
                     </div>
 
@@ -419,11 +419,21 @@ Exception $e) {
                     
                     <div class="space-y-4 mb-6 max-h-64 overflow-y-auto">
                         @foreach($cart as $item)
-                            <div class="flex justify-between text-sm">
+                            <div class="flex justify-between text-sm items-start">
                                 <div>
                                     <span class="font-bold">{{ $item['quantity'] }}x {{ $item['name'] }}</span>
                                     @if($item['is_menu'])
                                         <p class="text-xs text-zinc-500 ml-4">{{ implode(', ', $item['components']) }}</p>
+                                        <p class="text-xs text-accent-1 ml-4 mt-1">
+                                            @php
+                                                $basePrice = \App\Models\Product::find($item['product_id_for_db'])?->price ?? 0;
+                                                $menuSurcharge = config('wendys.pos.menu_surcharge');
+                                                $hasBeer = str_contains(implode(', ', $item['components']), '3 Monts');
+                                                $beerSurcharge = $hasBeer ? 2.00 : 0.00;
+                                            @endphp
+                                            (Base: {{ number_format($basePrice, 2, ',', ' ') }} € + Menu: {{ number_format($menuSurcharge, 2, ',', ' ') }} €
+                                            @if($hasBeer) + Bière: {{ number_format($beerSurcharge, 2, ',', ' ') }} € @endif)
+                                        </p>
                                     @endif
                                 </div>
                                 <span>{{ number_format($item['price'] * $item['quantity'], 2, ',', ' ') }} €</span>
@@ -431,8 +441,14 @@ Exception $e) {
                         @endforeach
                     </div>
 
-                    <div class="border-t pt-4 mb-6">
-                        <div class="flex justify-between items-center text-xl font-bold text-accent-1">
+                    <div class="border-t pt-4 mb-6 space-y-2">
+                        @if($deliveryMethod === 'delivery')
+                            <div class="flex justify-between items-center text-sm text-zinc-600">
+                                <span>Frais de livraison</span>
+                                <span>+ 2,00 €</span>
+                            </div>
+                        @endif
+                        <div class="flex justify-between items-center text-xl font-bold text-accent-1 pt-2 border-t border-zinc-100">
                             <span>Total à payer</span>
                             <span>{{ number_format($total, 2, ',', ' ') }} €</span>
                         </div>

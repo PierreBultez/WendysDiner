@@ -471,6 +471,16 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
                                                 <li>{{ $component }}</li>
                                             @endforeach
                                         </ul>
+                                        <p class="text-xs text-accent-1 mt-1">
+                                            @php
+                                                $basePrice = \App\Models\Product::find($item['product_id_for_db'])?->price ?? 0;
+                                                $menuSurcharge = config('wendys.pos.menu_surcharge');
+                                                $hasBeer = str_contains(implode(', ', $item['components']), '3 Monts');
+                                                $beerSurcharge = $hasBeer ? 2.00 : 0.00;
+                                            @endphp
+                                            (Base: {{ number_format($basePrice, 2, ',', ' ') }} € + Menu: {{ number_format($menuSurcharge, 2, ',', ' ') }} €
+                                            @if($hasBeer) + Bière: {{ number_format($beerSurcharge, 2, ',', ' ') }} € @endif)
+                                        </p>
                                     @endif
                                     {{-- Show notes if they exist --}}
                                     @if(!empty($item['notes']))
