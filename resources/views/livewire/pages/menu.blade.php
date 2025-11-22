@@ -164,7 +164,15 @@ new #[Title("La Carte - Wendy's Diner")] class extends Component
         
         $drink = $this->availableDrinks->find($this->selectedDrinkId);
         $menuId = 'menu_' . $burger->id . '_' . $side->id . '_' . $this->selectedSauceId . '_' . $drink->id . '_' . time();
-        $menuPrice = $burger->price + config('wendys.pos.menu_surcharge');
+        
+        // Price calculation
+        $menuSurcharge = config('wendys.pos.menu_surcharge');
+        // Add extra charge for specific beer
+        if ($drink->name === '3 Monts Blonde 33 cl') {
+            $menuSurcharge += 2.00;
+        }
+        
+        $menuPrice = $burger->price + $menuSurcharge;
 
         app(CartService::class)->add([
             'id' => $menuId,

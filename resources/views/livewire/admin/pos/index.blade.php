@@ -201,7 +201,13 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         }
         $drink = $this->availableDrinks->find($this->selectedDrinkId);
         $menuId = 'menu_' . $burger->id . '_' . $side->id . '_' . $this->selectedSauceId . '_' . $drink->id . '_' . time();
-        $menuPrice = $burger->price + config('wendys.pos.menu_surcharge');
+        
+        // Price calculation with surcharge
+        $menuSurcharge = config('wendys.pos.menu_surcharge');
+        if ($drink->name === '3 Monts Blonde 33 cl') {
+            $menuSurcharge += 2.00;
+        }
+        $menuPrice = $burger->price + $menuSurcharge;
 
         $this->cart[$menuId] = [
             'id' => $menuId,
@@ -209,7 +215,7 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             'price' => $menuPrice,
             'quantity' => 1,
             'is_menu' => true,
-            'components' => [$burger->name, $side->name, $sauce->name, $drink->name],
+            'components' => [$burger->name, $side->name, $sauceName, $drink->name],
             'notes' => $this->itemNotes,
             'product_id_for_db' => $burger->id // <-- ON STOCKE L'ID DU BURGER
         ];
