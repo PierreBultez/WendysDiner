@@ -22,6 +22,8 @@ class CartService
         if (isset($cart[$item['id']])) {
             $cart[$item['id']]['quantity'] += $item['quantity'];
         } else {
+            // Ensure default keys
+            $item['is_reward'] = $item['is_reward'] ?? false;
             $cart[$item['id']] = $item;
         }
 
@@ -55,7 +57,13 @@ class CartService
 
     public function total(): float
     {
-        return collect($this->get())->sum(fn($item) => $item['price'] * $item['quantity']);
+        return collect($this->get())->sum(function($item) {
+            // Reward items are free
+            if (isset($item['is_reward']) && $item['is_reward']) {
+                return 0;
+            }
+            return $item['price'] * $item['quantity'];
+        });
     }
 
     public function count(): int

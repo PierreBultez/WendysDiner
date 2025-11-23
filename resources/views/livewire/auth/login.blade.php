@@ -49,7 +49,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard.index', absolute: false), navigate: true);
+        if ($user->isAdmin()) {
+            $this->redirectIntended(default: route('dashboard.index', absolute: false), navigate: true);
+        } else {
+            $this->redirectIntended(default: route('my-orders', absolute: false), navigate: true);
+        }
     }
 
     /**
@@ -101,7 +105,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 }; ?>
 
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+    <x-auth-header :title="__('Connectez-vous à votre compte')" :description="__('Entrez votre email et mot de passe pour vous connecter')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
@@ -110,7 +114,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <!-- Email Address -->
         <flux:input
             wire:model="email"
-            :label="__('Email address')"
+            :label="__('Adresse email')"
             type="email"
             required
             autofocus
@@ -122,28 +126,35 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <div class="relative">
             <flux:input
                 wire:model="password"
-                :label="__('Password')"
+                :label="__('Mot de passe')"
                 type="password"
                 required
                 autocomplete="current-password"
-                :placeholder="__('Password')"
+                :placeholder="__('Mot de passe')"
                 viewable
             />
 
             @if (Route::has('password.request'))
                 <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
-                    {{ __('Forgot your password?') }}
+                    {{ __('Mot de passe oublié ?') }}
                 </flux:link>
             @endif
         </div>
 
         <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
+        <flux:checkbox wire:model="remember" :label="__('Se souvenir de moi')" />
 
         <div class="flex items-center justify-end">
             <flux:button variant="primary" type="submit" class="w-full" data-test="login-button">
-                {{ __('Log in') }}
+                {{ __('Se connecter') }}
             </flux:button>
         </div>
     </form>
+
+    <div class="text-center text-sm text-zinc-500 dark:text-zinc-400">
+        {{ __('Pas encore de compte ?') }}
+        <flux:link :href="route('register')" wire:navigate class="font-bold">
+            {{ __('Créer un compte') }}
+        </flux:link>
+    </div>
 </div>

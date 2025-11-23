@@ -33,6 +33,9 @@ class ProductForm extends Form
     #[Validate('boolean')]
     public bool $is_available = true;
 
+    #[Validate('nullable|integer|min:1|max:5')]
+    public ?int $loyalty_tier = null;
+
     // We keep the image_url to reset it if needed, but it's not a form field anymore.
     public string $image_url = '';
 
@@ -48,6 +51,7 @@ class ProductForm extends Form
         $this->category_id = $product->category_id;
         $this->featured = $product->featured;
         $this->is_available = $product->is_available;
+        $this->loyalty_tier = $product->loyalty_tier;
         $this->image_url = $product->image_url;
     }
 
@@ -68,6 +72,7 @@ class ProductForm extends Form
             'image_url' => $imageUrl,
             'featured' => $this->featured,
             'is_available' => $this->is_available,
+            'loyalty_tier' => $this->loyalty_tier,
         ]);
 
         $this->reset();
@@ -90,6 +95,7 @@ class ProductForm extends Form
             'image_url' => $imageUrl,
             'featured' => $this->featured,
             'is_available' => $this->is_available,
+            'loyalty_tier' => $this->loyalty_tier,
         ]);
 
         $this->reset();
