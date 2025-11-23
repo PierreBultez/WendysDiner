@@ -24,6 +24,7 @@ class Product extends Model
         'featured',
         'image_url',
         'category_id',
+        'loyalty_tier',
     ];
 
     /**

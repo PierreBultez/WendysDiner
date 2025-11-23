@@ -6,13 +6,14 @@ use Livewire\Volt\Volt;
 
 Volt::route('/', 'pages.home')->name('home');
 Volt::route('/histoire', 'pages.story')->name('story');
+Volt::route('/fidelite', 'pages.loyalty')->name('loyalty');
 Volt::route('/infos', 'pages.infos')->name('infos');
 Volt::route('/carte', 'pages.menu')->name('menu');
 Volt::route('/checkout', 'pages.checkout')->name('checkout');
 Volt::route('/commande-confirmee', 'pages.success')->name('success');
 
 // ADMIN DASHBOARD ROUTES
-Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Volt::route('/', 'admin.dashboard')->name('index');
     Volt::route('/categories', 'admin.categories.index')->name('categories.index');
     Volt::route('/products', 'admin.products.index')->name('products.index');
@@ -21,6 +22,8 @@ Route::middleware(['auth', 'verified'])->prefix('dashboard')->name('dashboard.')
 });
 
 Route::middleware(['auth'])->group(function () {
+    Volt::route('/mes-commandes', 'pages.my-orders')->name('my-orders');
+
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');

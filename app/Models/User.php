@@ -22,7 +22,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'is_admin',
         'password',
+        'loyalty_points',
     ];
 
     /**
@@ -45,7 +47,24 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
         ];
+    }
+    
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin;
+    }
+
+    /**
+     * Get the user's orders.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 
     /**

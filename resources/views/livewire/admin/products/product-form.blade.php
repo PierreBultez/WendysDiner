@@ -101,8 +101,21 @@ new class extends Component {
                     <flux:error for="form.price"/>
                 </flux:field>
 
-                {{-- Image Upload Field (CORRECTED) --}}
+                {{-- Loyalty Tier Select --}}
                 <flux:field>
+                    <flux:label for="loyalty_tier">Niveau de Fidélité (Récompense)</flux:label>
+                    <flux:select wire:model="form.loyalty_tier" id="loyalty_tier">
+                        <option value="">Aucun (Produit standard)</option>
+                        @foreach(config('wendys.loyalty') as $tier => $info)
+                            <option value="{{ $tier }}">Niveau {{ $tier }} - {{ $info['name'] }} ({{ $info['points'] }} pts)</option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error for="form.loyalty_tier" />
+                </flux:field>
+            </div>
+
+            {{-- Image Upload Field (CORRECTED) --}}
+            <flux:field>
                     <flux:label for="photo">Image du produit</flux:label>
                     <input wire:model="form.photo" id="photo" type="file" class="sr-only">
 
@@ -139,7 +152,6 @@ new class extends Component {
 
                     <flux:error for="form.photo" />
                 </flux:field>
-            </div>
 
             {{-- Switches --}}
             <div class="flex gap-6">

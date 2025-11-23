@@ -45,6 +45,13 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
             $this->redirectRoute('menu');
             return;
         }
+
+        if (auth()->check()) {
+            $user = auth()->user();
+            $this->customer_name = $user->name;
+            $this->customer_email = $user->email;
+        }
+
         $this->generateSlots();
     }
 
@@ -64,6 +71,22 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
     {
         $this->refreshCart();
         // Also need to re-validate or re-generate slots if delivery rules differ? No, logic seems same for now.
+    }
+
+    public function updateQuantity(string $itemId, int $newQuantity): void
+    {
+        app(CartService::class)->updateQuantity($itemId, $newQuantity);
+        $this->refreshCart();
+    }
+
+    public function removeItem(string $itemId): void
+    {
+        app(CartService::class)->remove($itemId);
+        $this->refreshCart();
+        
+        if (empty($this->cart)) {
+            $this->redirectRoute('menu');
+        }
     }
 
     public function generateSlots(): void
@@ -177,6 +200,7 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
 
             $order = DB::transaction(function () use ($pickupDateTime, $initialStatus) {
                 $order = Order::create([
+                    'user_id' => auth()->id(),
                     'total_amount' => $this->total,
                     'status' => $initialStatus,
                     'pickup_time' => $pickupDateTime,
@@ -193,8 +217,9 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
                         'product_id' => $item['product_id_for_db'] ?? ($item['is_menu'] ? null : $item['id']),
                         'quantity' => $item['quantity'],
                         'unit_price' => $item['price'],
-                        'notes' => $item['notes'],
-                        'components' => $item['is_menu'] ? $item['components'] : null,
+                        'points_cost' => $item['points_cost'] ?? 0, // Save points cost
+                        'notes' => $item['notes'] ?? null,
+                        'components' => $item['is_menu'] ? ($item['components'] ?? null) : null,
                     ]);
                 }
                 return $order;
@@ -220,6 +245,7 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
             }
 
             // If not Revolut, finalize immediately
+            $this->awardAndDeductLoyaltyPoints($order);
             app(CartService::class)->clear();
             $this->redirectRoute('success');
 
@@ -249,11 +275,34 @@ Exception $e) {
                     'amount' => $order->total_amount,
                     'method' => 'revolut'
                 ]);
+                
+                $this->awardAndDeductLoyaltyPoints($order);
             }
         }
         
         app(CartService::class)->clear();
         $this->redirectRoute('success');
+    }
+
+    private function awardAndDeductLoyaltyPoints(Order $order): void
+    {
+        if (!$order->user_id) return;
+
+        $user = \App\Models\User::find($order->user_id);
+        if (!$user) return;
+
+        // 1. Award Points for paid amount
+        $pointsEarned = (int) $order->total_amount;
+        if ($pointsEarned > 0) {
+            $user->increment('loyalty_points', $pointsEarned);
+        }
+
+        // 2. Deduct Points for rewards based on stored cost
+        $pointsToDeduct = $order->items()->sum('points_cost');
+        
+        if ($pointsToDeduct > 0) {
+            $user->decrement('loyalty_points', $pointsToDeduct);
+        }
     }
 };
 ?>
@@ -417,14 +466,25 @@ Exception $e) {
                 <div class="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-lg sticky top-6">
                     <h2 class="text-xl font-bold text-primary-text mb-6">Récapitulatif</h2>
                     
-                    <div class="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                    <div class="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2">
                         @foreach($cart as $item)
-                            <div class="flex justify-between text-sm items-start">
-                                <div>
-                                    <span class="font-bold">{{ $item['quantity'] }}x {{ $item['name'] }}</span>
+                            <div class="flex justify-between text-sm items-start gap-2 border-b border-zinc-100 pb-4 last:border-0">
+                                {{-- Quantity Controls --}}
+                                <div class="flex flex-col items-center gap-1 bg-zinc-100 dark:bg-zinc-700 rounded-lg p-1">
+                                    <button wire:click="updateQuantity('{{ $item['id'] }}', {{ $item['quantity'] + 1 }})" class="p-0.5 hover:text-accent-1 transition-colors">
+                                        <flux:icon name="plus" class="size-3" />
+                                    </button>
+                                    <span class="font-bold text-xs">{{ $item['quantity'] }}</span>
+                                    <button wire:click="updateQuantity('{{ $item['id'] }}', {{ $item['quantity'] - 1 }})" class="p-0.5 hover:text-red-500 transition-colors">
+                                        <flux:icon name="minus" class="size-3" />
+                                    </button>
+                                </div>
+
+                                <div class="flex-grow">
+                                    <span class="font-bold block">{{ $item['name'] }}</span>
                                     @if($item['is_menu'])
-                                        <p class="text-xs text-zinc-500 ml-4">{{ implode(', ', $item['components']) }}</p>
-                                        <p class="text-xs text-accent-1 ml-4 mt-1">
+                                        <p class="text-xs text-zinc-500">{{ implode(', ', $item['components']) }}</p>
+                                        <p class="text-xs text-accent-1 mt-1">
                                             @php
                                                 $basePrice = \App\Models\Product::find($item['product_id_for_db'])?->price ?? 0;
                                                 $menuSurcharge = config('wendys.pos.menu_surcharge');
@@ -435,8 +495,18 @@ Exception $e) {
                                             @if($hasBeer) + Bière: {{ number_format($beerSurcharge, 2, ',', ' ') }} € @endif)
                                         </p>
                                     @endif
+                                    @if(!empty($item['notes']))
+                                        <p class="text-xs text-accent-1 italic">{{ $item['notes'] }}</p>
+                                    @endif
                                 </div>
-                                <span>{{ number_format($item['price'] * $item['quantity'], 2, ',', ' ') }} €</span>
+                                
+                                <div class="text-right flex flex-col items-end">
+                                    <span class="font-bold">{{ number_format($item['price'] * $item['quantity'], 2, ',', ' ') }} €</span>
+                                    <button wire:click="removeItem('{{ $item['id'] }}')" class="text-xs text-red-500 hover:underline mt-1 flex items-center gap-1">
+                                        <flux:icon name="trash" class="size-3" />
+                                        Supprimer
+                                    </button>
+                                </div>
                             </div>
                         @endforeach
                     </div>

@@ -44,8 +44,16 @@
         <flux:navbar.item href="/" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Accueil</flux:navbar.item>
         <flux:navbar.item href="/histoire" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>L'histoire</flux:navbar.item>
         <flux:navbar.item href="/carte" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>La carte</flux:navbar.item>
+        <flux:navbar.item href="/fidelite" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Le Club</flux:navbar.item>
         <flux:navbar.item href="/infos" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Infos</flux:navbar.item>
-        <flux:navbar.item href="{{ route('dashboard.index') }}" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Dashboard</flux:navbar.item>
+        
+        @auth
+            <flux:navbar.item href="{{ route('my-orders') }}" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Mon Espace</flux:navbar.item>
+            {{-- Show Admin Dashboard only if user is verified (and potentially admin logic later) --}}
+            <flux:navbar.item href="{{ route('dashboard.index') }}" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Admin</flux:navbar.item>
+        @else
+            <flux:navbar.item href="{{ route('login') }}" class="hover:!bg-accent-2 hover:!text-background" wire:navigate>Connexion</flux:navbar.item>
+        @endauth
     </flux:navbar>
 
     {{-- Mobile Navigation (hamburger menu, visible only on small screens) --}}
@@ -63,8 +71,15 @@
                     <flux:menu.item href="/" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Accueil</flux:menu.item>
                     <flux:menu.item href="/histoire" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>L'histoire</flux:menu.item>
                     <flux:menu.item href="/carte" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>La carte</flux:menu.item>
+                    <flux:menu.item href="/fidelite" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Le Club</flux:menu.item>
                     <flux:menu.item href="/infos" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Infos</flux:menu.item>
-                    <flux:menu.item href="{{ route('dashboard.index') }}" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Admin</flux:menu.item>
+                    
+                    @auth
+                        <flux:menu.item href="{{ route('my-orders') }}" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Mon Espace</flux:menu.item>
+                        <flux:menu.item href="{{ route('dashboard.index') }}" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Admin</flux:menu.item>
+                    @else
+                        <flux:menu.item href="{{ route('login') }}" class="text-xl hover:!bg-accent-2 hover:text-background" wire:navigate>Connexion</flux:menu.item>
+                    @endauth
                 </flux:menu>
         </flux:dropdown>
     </div>
@@ -77,6 +92,8 @@
 
 {{-- FOOTER --}}
 <x-partials.footer />
+
+<livewire:components.global-cart />
 
 {{-- Flux UI & Livewire scripts --}}
 @fluxScripts

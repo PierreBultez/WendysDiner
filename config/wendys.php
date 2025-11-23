@@ -21,4 +21,17 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Loyalty Program
+    |--------------------------------------------------------------------------
+    */
+    'loyalty' => [
+        1 => ['points' => 30,  'name' => 'Le Grignoteur',       'reward' => 'Un petit plaisir'],
+        2 => ['points' => 60,  'name' => 'L\'Affamé',           'reward' => 'Un petit burger'],
+        3 => ['points' => 90,  'name' => 'L\'Habitué',          'reward' => 'Un menu classic'],
+        4 => ['points' => 120, 'name' => 'Le Gros Bonnet',      'reward' => 'Un menu premium'],
+        5 => ['points' => 150, 'name' => 'La Légende', 'reward' => 'Un menu signature'],
+    ],
+
 ];

@@ -1,126 +1,103 @@
 # Wendy's Diner
 
-Ce projet est une application web moderne conçue pour le restaurant "Wendy's Diner". Elle fonctionne comme un système de point de vente (POS) et une plateforme de gestion de commandes, construite avec la stack TALL (Tailwind CSS, Alpine.js, Livewire, Laravel) dans ses versions les plus récentes.
+Wendy's Diner est une application web moderne de gestion de restaurant (Diner américain) incluant un site vitrine, un système de commande en ligne (Click & Collect / Livraison), une interface d'administration complète et un système de caisse (POS).
 
-## Table des matières
+Ce projet est construit avec **Laravel 12**, **Livewire 3 (Volt)** et **Tailwind CSS (Flux UI)**.
 
-- [Stack Technique](#stack-technique)
-- [Fonctionnalités Principales](#fonctionnalités-principales)
-- [Prérequis](#prérequis)
-- [Installation](#installation)
-- [Utilisation](#utilisation)
-- [Lancer les tests](#lancer-les-tests)
-- [Déploiement](#déploiement)
-- [Structure des dossiers](#structure-des-dossiers)
+## 🚀 Fonctionnalités Principales
 
-## Stack Technique
+### 🌐 Partie Publique (Frontend)
+*   **Site Vitrine :** Présentation du restaurant, histoire, informations pratiques.
+*   **Menu Interactif :** Consultation de la carte des produits et menus.
+*   **Commande en Ligne :**
+    *   Panier d'achat dynamique.
+    *   Choix du mode de retrait : Click & Collect (créneaux horaires) ou Livraison.
+    *   Paiement en ligne sécurisé via **Revolut Merchant API**.
+    *   Validation de commande en temps réel.
+*   **Espace Client :**
+    *   Création de compte et connexion sécurisée.
+    *   Historique des commandes.
+    *   **Système de Fidélité :** Cumul de points à chaque commande.
+    *   Gestion du profil (informations personnelles, mot de passe, 2FA).
 
-- **Backend**:
-  - PHP 8.4
-  - Laravel 12
-  - Livewire 3 (avec Volt & Flux)
-  - Laravel Fortify (pour l'authentification)
-- **Frontend**:
-  - Tailwind CSS 4
-  - Alpine.js
-  - Vite
-- **Base de données**:
-  - SQLite pour le développement local
-  - Compatible avec MySQL, PostgreSQL
-- **Tests**:
-  - Pest
-- **Déploiement**:
-  - GitHub Actions pour l'intégration et le déploiement continus (CI/CD).
+### 🛠️ Administration (Backend)
+*   **Tableau de Bord :** Vue d'ensemble des ventes et statistiques.
+*   **Gestion du Catalogue :**
+    *   Produits (Burger, Boissons, Desserts, etc.) avec gestion des stocks et disponibilité.
+    *   Catégories avec tri par position.
+*   **Gestion des Commandes :**
+    *   Suivi des commandes en temps réel (En attente, En cuisine, Prêt, Livré).
+    *   Détails complets des commandes clients.
+*   **Point de Vente (POS) :**
+    *   Interface optimisée pour la prise de commande sur place (tablette/écran tactile).
+    *   Sélection rapide des produits.
+    *   Encaissement multi-méthodes (Espèces, CB).
 
-## Fonctionnalités Principales
+## 💻 Stack Technique
 
-- Gestion de l'authentification des utilisateurs (Inscription, Connexion, 2FA).
-- Tableau de bord d'administration.
-- Système de Point de Vente (POS).
-- Gestion des produits et des catégories.
-- Prise et suivi des commandes.
-- Gestion des paiements.
+*   **Framework Backend :** [Laravel 12](https://laravel.com)
+*   **Frontend & Interactivité :** [Livewire 3](https://livewire.laravel.com) avec [Volt](https://livewire.laravel.com/docs/volt) (API fonctionnelle pour les composants).
+*   **UI Kit :** [Flux UI](https://fluxui.dev) (Composants Tailwind modernes).
+*   **Styling :** [Tailwind CSS](https://tailwindcss.com).
+*   **Base de Données :** SQLite (par défaut) / MySQL / PostgreSQL.
+*   **Paiement :** Revolut Merchant API.
+*   **Authentification :** Laravel Fortify (Logique) & Livewire (Vues).
 
-## Prérequis
+## 📂 Structure de la Base de Données
 
-Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votre machine :
-- PHP 8.4 ou supérieur
-- Composer
-- Node.js et npm (ou yarn)
-- Une base de données (ex: SQLite, MySQL, etc.)
+*   `users`: Clients et Administrateurs (`is_admin`, `loyalty_points`).
+*   `products`: Articles du menu (`name`, `price`, `category_id`, `image`, `is_available`).
+*   `categories`: Classification des produits (`name`, `type`, `position`).
+*   `orders`: Commandes clients (`user_id`, `total_amount`, `status`, `pickup_time`, `delivery_method`).
+*   `order_items`: Détail des produits commandés (`order_id`, `product_id`, `quantity`, `unit_price`, `components`).
+*   `payments`: Historique des transactions (`order_id`, `amount`, `method`, `status`).
 
-## Installation
+## ⚙️ Installation
 
-1.  **Clonez le dépôt :**
+1.  **Prérequis :** PHP 8.2+, Composer, Node.js & NPM.
+2.  **Cloner le dépôt :**
     ```bash
-    git clone https://github.com/votre-utilisateur/wendys-diner.git
+    git clone <url-du-repo>
     cd wendys-diner
     ```
-
-2.  **Installez les dépendances PHP :**
+3.  **Installer les dépendances :**
     ```bash
     composer install
+    npm install
     ```
-
-3.  **Créez votre fichier d'environnement :**
+4.  **Configuration de l'environnement :**
     ```bash
     cp .env.example .env
-    ```
-
-4.  **Générez la clé d'application :**
-    ```bash
     php artisan key:generate
     ```
-
-5.  **Configurez la base de données :**
-    Modifiez le fichier `.env` avec les informations de connexion à votre base de données. Pour le développement local, vous pouvez laisser la configuration SQLite par défaut.
-
-6.  **Exécutez les migrations et les seeders :**
-    Cela créera la structure de la base de données et la remplira avec des données initiales.
+    *   Configurez votre base de données dans `.env`.
+    *   Configurez l'API Revolut (`REVOLUT_API_KEY`, `REVOLUT_MODE`).
+5.  **Migrations et Seeders :**
     ```bash
     php artisan migrate --seed
     ```
-
-7.  **Installez les dépendances Node.js :**
+    *   Cela créera un utilisateur admin par défaut (voir `DatabaseSeeder`).
+6.  **Lancer le serveur de développement :**
     ```bash
-    npm install
+    npm run dev
+    php artisan serve
     ```
 
-## Utilisation
+## 🔐 Comptes de Démonstration
 
-Pour lancer l'application en mode développement, vous pouvez utiliser le script `dev` fourni qui lance simultanément le serveur PHP, le watcher de la file d'attente, les logs et Vite.
+*   **Admin :**
+    *   Email : `admin@wendys.com`
+    *   Mot de passe : `password`
+*   **Client :**
+    *   Créez un compte depuis la page d'inscription.
 
-```bash
-npm run dev
-```
+## 🧪 Tests
 
-L'application sera accessible à l'adresse `http://127.0.0.1:8000`.
-
-## Lancer les tests
-
-Pour exécuter la suite de tests automatisés, utilisez la commande suivante :
-
+Le projet inclut des tests automatisés (Pest PHP).
 ```bash
 php artisan test
 ```
 
-## Déploiement
+## 📝 Auteur
 
-Le déploiement est automatisé via un workflow GitHub Actions défini dans `.github/workflows/deploy.yml`. Chaque `push` sur la branche `master` déclenche un déploiement sur le serveur de production.
-
-Le processus inclut :
-- Installation des dépendances de production.
-- Compilation des assets frontend.
-- Exécution des migrations de la base de données.
-- Mise en cache de la configuration et des routes pour des performances optimales.
-
-## Structure des dossiers
-
-Le projet suit la structure standard de Laravel, avec quelques points notables :
-
-- `app/Livewire/`: Contient la majorité des composants d'interface utilisateur (logique et vues), en utilisant la structure de `Volt` (fichiers `*.php` uniques).
-- `app/Models/`: Contient les modèles Eloquent (`Product`, `Order`, `Category`, etc.).
-- `database/migrations/`: Définit la structure de la base de données.
-- `resources/views/`: Contient les layouts principaux et les vues Blade traditionnelles.
-- `routes/web.php`: Définit les routes de l'application.
-- `tests/`: Contient les tests `Feature` et `Unit` écrits avec Pest.
+Développé pour Wendy's Diner.
