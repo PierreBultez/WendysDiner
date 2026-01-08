@@ -44,7 +44,6 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.DEPLOY_PATH }}
 
@@ -79,7 +78,7 @@ jobs:
             sudo find . -type d -exec chmod 755 {} \;
             sudo chmod -R 775 storage bootstrap/cache database/
             sudo chown -R www-data:www-data storage bootstrap/cache database/
-#            sudo chmod 664 database/database.sqlite
+            sudo chmod 664 database/database.sqlite
 
             # Réinitialiser les paramètres Laravel
             php artisan config:clear
