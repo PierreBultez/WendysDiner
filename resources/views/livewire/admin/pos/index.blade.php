@@ -47,31 +47,105 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
     public ?bool $kidsMenuCheddar = null; // true for yes, false for no
     public string $kidsMenuItemNotes = '';
 
+    // --- NEW: Integrated Payment Modal Management ---
+    public bool $showPaymentModal = false;
+    public ?Order $currentOrder = null;
+    public array $payments = [];
+    public string $newPaymentMethod = 'espèces';
+    public string $newPaymentAmount = '';
+    public string $cashReceived = '';
+
     public function mount(): void
     {
         $this->categories = Category::has('products')->orderBy('position')->get();
         $this->products = Product::orderBy('name')->get();
         $this->pickupTime = Carbon::now()->format('H:i');
-        
+
         $this->availableSides = Product::whereHas('category', fn($q) => $q->where('type', 'accompagnement'))
             ->where('is_available', true)
             ->get();
-            
+
         $this->availableSauces = Product::whereHas('category', fn($q) => $q->where('type', 'sauce'))
             ->where('is_available', true)
             ->get();
-            
+
         $this->availableDrinks = Product::whereHas('category', fn($q) => $q->where('type', 'boisson'))
             ->where('is_available', true)
             ->get();
     }
 
-    /**
-     * Listener for when a payment is successfully processed by the modal.
-     */
-    #[On('order-fully-paid')]
-    public function handleSuccessfulPayment(): void
+    // --- Payment Logic Methods ---
+
+    public function openPaymentModal(Order $order): void
     {
+        $this->currentOrder = $order;
+        $this->payments = [];
+        $this->newPaymentAmount = (string) $this->getRemainingAmount();
+        $this->cashReceived = '';
+        $this->showPaymentModal = true;
+    }
+
+    public function getRemainingAmount(): float
+    {
+        if (!$this->currentOrder) return 0.0;
+        $paid = collect($this->payments)->sum('amount');
+        return round($this->currentOrder->total_amount - $paid, 2);
+    }
+
+    public function addPaymentLine(): void
+    {
+        $this->validate([
+            'newPaymentMethod' => 'required|in:espèces,carte',
+            'newPaymentAmount' => 'required|numeric|min:0.1|max:' . $this->getRemainingAmount(),
+        ]);
+
+        $this->payments[] = [
+            'method' => $this->newPaymentMethod,
+            'amount' => (float) $this->newPaymentAmount,
+        ];
+
+        $remaining = $this->getRemainingAmount();
+        $this->newPaymentAmount = $remaining > 0 ? (string) $remaining : '';
+        $this->newPaymentMethod = 'carte';
+    }
+
+    public function removePaymentLine(int $index): void
+    {
+        if (isset($this->payments[$index])) {
+            unset($this->payments[$index]);
+            $this->payments = array_values($this->payments);
+        }
+    }
+
+    public function getChange(): float
+    {
+        if (!$this->cashReceived) return 0.0;
+        $cashReceived = (float) $this->cashReceived;
+        $cashPayments = collect($this->payments)->where('method', 'espèces')->sum('amount');
+        if ($cashReceived >= $cashPayments) {
+            return round($cashReceived - $cashPayments, 2);
+        }
+        return 0.0;
+    }
+
+    public function savePayments(): void
+    {
+        if ($this->getRemainingAmount() > 0.009) return;
+
+        // Save payments
+        foreach ($this->payments as $payment) {
+            $this->currentOrder->payments()->create([
+                'amount' => $payment['amount'],
+                'method' => $payment['method'],
+            ]);
+        }
+
+        // Update order status
+        $this->currentOrder->status = 'en cours';
+        $this->currentOrder->save();
+
+        // Close modal and reset POS
+        $this->showPaymentModal = false;
         $this->resetPos();
         $this->successMessage = 'Commande enregistrée et payée avec succès !';
     }
@@ -116,8 +190,8 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
             $this->resetPos();
             $this->successMessage = 'Commande enregistrée pour paiement ultérieur.';
         } else {
-            // If paying now, just open the modal. The toast will be handled by the listener.
-            $this->dispatch('show-payment-modal', orderId: $order->id);
+            // If paying now, OPEN THE INTEGRATED MODAL
+            $this->openPaymentModal($order);
         }
     }
 
@@ -127,6 +201,9 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         $this->cart = [];
         $this->total = 0.0;
         $this->pickupTime = Carbon::now()->format('H:i');
+        // Reset payment related properties too
+        $this->currentOrder = null;
+        $this->payments = [];
     }
 
     public function selectCategory(?int $categoryId): void
@@ -210,7 +287,7 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
         }
         $drink = $this->availableDrinks->find($this->selectedDrinkId);
         $menuId = 'menu_' . $burger->id . '_' . $side->id . '_' . $this->selectedSauceId . '_' . $drink->id . '_' . time();
-        
+
         // Price calculation with surcharge
         $menuSurcharge = config('wendys.pos.menu_surcharge');
         if ($drink->name === '3 Monts Blonde 33 cl') {
@@ -751,6 +828,98 @@ new #[Layout('components.layouts.admin')] #[Title("Caisse - Wendy's Diner")] cla
                 </div>
             </div>
         </div>
+    @endif
+    {{-- --- INTEGRATED PAYMENT MODAL --- --}}
+    @if($currentOrder)
+        <flux:modal
+            wire:model="showPaymentModal"
+            name="integrated-payment-modal"
+            title="Encaisser la Commande #{{ $currentOrder->id }}"
+            class="max-w-xl"
+        >
+            {{-- Order Summary --}}
+            <div class="bg-zinc-50 dark:bg-zinc-700 p-4 rounded-lg">
+                <div class="flex justify-between text-2xl font-bold text-primary-text">
+                    <span>Total à Payer</span>
+                    <span>{{ number_format($currentOrder->total_amount, 2, ',', ' ') }} €</span>
+                </div>
+                @if($this->getRemainingAmount() > 0.009)
+                    <div class="flex justify-between text-lg font-bold text-accent-1 mt-2">
+                        <span>Reste à Payer</span>
+                        <span>{{ number_format($this->getRemainingAmount(), 2, ',', ' ') }} €</span>
+                    </div>
+                @else
+                    <div class="flex justify-between text-lg font-bold text-lime-600 mt-2">
+                        <span>Total Payé</span>
+                        <span>{{ number_format($currentOrder->total_amount, 2, ',', ' ') }} €</span>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Payment Lines --}}
+            <div class="mt-4 space-y-2">
+                @foreach($payments as $index => $payment)
+                    <div class="flex items-center justify-between p-2 bg-zinc-100 dark:bg-zinc-800 rounded-md">
+                        <span class="capitalize">{{ $payment['method'] }}</span>
+                        <span class="font-semibold">{{ number_format($payment['amount'], 2, ',', ' ') }} €</span>
+                        <button wire:click="removePaymentLine({{ $index }})">
+                            <flux:icon name="x-mark" class="size-4 text-red-500" />
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Add Payment Form --}}
+            @if($this->getRemainingAmount() > 0.009)
+                <div wire:key="add-payment-form" class="mt-6 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <flux:field>
+                            <flux:label for="payment_method">Moyen de paiement</flux:label>
+                            <flux:select wire:model.live="newPaymentMethod" id="payment_method">
+                                <option value="espèces">Espèces</option>
+                                <option value="carte">Carte Bancaire</option>
+                            </flux:select>
+                        </flux:field>
+                        <flux:field>
+                            <flux:label for="payment_amount">Montant</flux:label>
+                            <flux:input wire:model.blur="newPaymentAmount" id="payment_amount" type="number" step="0.01" />
+                        </flux:field>
+                    </div>
+                    <div class="text-right mt-2">
+                        <flux:button wire:click="addPaymentLine" variant="primary" size="sm">Ajouter Paiement</flux:button>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Cash Payment & Change Calculation --}}
+            @if(collect($payments)->where('method', 'espèces')->isNotEmpty())
+                <div class="mt-4 pt-4 border-t border-dashed">
+                    <flux:field>
+                        <flux:label for="cash_received">Montant reçu en espèces</flux:label>
+                        <flux:input wire:model.blur="cashReceived" id="cash_received" type="number" step="0.01" placeholder="Ex: 20.00" />
+                    </flux:field>
+                    @if($this->getChange() > 0)
+                        <div class="mt-2 text-center text-xl font-bold p-3 bg-accent-2/20 text-accent-2 rounded-lg">
+                            Monnaie à rendre : {{ number_format($this->getChange(), 2, ',', ' ') }} €
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Modal Footer --}}
+            <div class="flex justify-end gap-2 pt-6">
+                <flux:button type="button" variant="ghost" @click="$wire.showPaymentModal = false">Annuler</flux:button>
+                <flux:button
+                    type="button"
+                    variant="primary"
+                    class="!py-3"
+                    wire:click="savePayments"
+                    :disabled="$this->getRemainingAmount() > 0.009"
+                >
+                    Encaisser la Commande
+                </flux:button>
+            </div>
+        </flux:modal>
     @endif
     <livewire:admin.partials.payment-modal />
 </div>
