@@ -83,3 +83,6 @@ jobs:
 
             # Réinitialiser les paramètres Laravel
             php artisan config:clear
+
+            # Redémarrer PHP-FPM pour vider OPcache
+            sudo service php8.4-fpm reload
