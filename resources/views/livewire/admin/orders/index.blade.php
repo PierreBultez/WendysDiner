@@ -26,6 +26,16 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
     {
         $allTodaysOrders = Order::whereDate('created_at', Carbon::today())->latest()->get();
 
+        // Calculate Daily Revenue (Only completed orders, excluding 'en cours' and 'à payer')
+        $dailyRevenue = Order::whereDate('created_at', Carbon::today())
+            ->where('status', 'terminée')
+            ->sum('total_amount');
+
+        // Calculate Pending Revenue (In progress or To be paid)
+        $pendingRevenue = Order::whereDate('created_at', Carbon::today())
+            ->whereIn('status', ['en cours', 'à payer'])
+            ->sum('total_amount');
+
         $ordersQuery = Order::whereDate('created_at', Carbon::today())
             ->with('items.product', 'payments')
             ->when($this->filterStatus, fn ($query) => $query->where('status', $this->filterStatus))
@@ -36,6 +46,8 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
             'orders' => $ordersQuery->get(),
             'statuses' => $allTodaysOrders->pluck('status')->unique(),
             'pickupTimes' => $allTodaysOrders->pluck('pickup_time')->map(fn($time) => $time?->format('H:i'))->unique()->sort(),
+            'dailyRevenue' => $dailyRevenue,
+            'pendingRevenue' => $pendingRevenue,
         ];
     }
 
@@ -59,6 +71,23 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
 <div>
     <div class="flex items-center justify-between">
         <h1 class="text-3xl text-primary-text font-bold">Commandes du Jour</h1>
+
+        <div class="flex gap-4">
+            <div class="text-xl font-bold text-blue-500 bg-white dark:bg-zinc-800 px-4 py-2 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">
+                En cours : {{ number_format($pendingRevenue, 2, ',', ' ') }} €
+            </div>
+
+            @php
+                $revenueColor = match(true) {
+                    $dailyRevenue < 200 => 'text-red-500',
+                    $dailyRevenue <= 300 => 'text-amber-500',
+                    default => 'text-green-500',
+                };
+            @endphp
+            <div class="text-xl font-bold {{ $revenueColor }} bg-white dark:bg-zinc-800 px-4 py-2 rounded-lg shadow-sm border border-zinc-200 dark:border-zinc-700">
+                C.A. : {{ number_format($dailyRevenue, 2, ',', ' ') }} €
+            </div>
+        </div>
     </div>
 
     {{-- --- FILTERS SECTION --- --}}
@@ -192,7 +221,7 @@ new #[Layout('components.layouts.admin')] #[Title("Commandes - Wendy's Diner")] 
         </div>
     </div>
     <livewire:admin.partials.payment-modal />
-    
+
     @if ($successMessage)
         <div
             x-data="{ show: true }"
