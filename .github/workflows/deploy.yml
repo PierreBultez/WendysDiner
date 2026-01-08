@@ -10,34 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Setup PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: '8.4'
-#
-#      - name: Prepare Laravel Application
-#        run: |
-#          cp .env.example .env
-#          mkdir -p bootstrap/cache
-#          mkdir -p storage/framework/cache
-#          mkdir -p storage/framework/sessions
-#          mkdir -p storage/framework/testing
-#          mkdir -p storage/framework/views
-#          chmod -R 775 storage bootstrap/cache
-#          touch storage/logs/laravel.log
-#          chmod 775 storage/logs/laravel.log
-#
-#      - name: Install dependencies
-#        run: composer install --no-dev --optimize-autoloader --no-interaction
-#
-#      - name: Generate key
-#        run: php artisan key:generate
-#
-#      - name: Build assets
-#        run: |
-#          npm ci
-#          npm run build
-
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -79,7 +51,6 @@ jobs:
             sudo find . -type d -exec chmod 755 {} \;
             sudo chmod -R 775 storage bootstrap/cache database/
             sudo chown -R www-data:www-data storage bootstrap/cache database/
-#            sudo chmod 664 database/database.sqlite
 
             # Réinitialiser les paramètres Laravel
             php artisan config:clear
