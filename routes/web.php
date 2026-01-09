@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('dashboard')->name('das
     Volt::route('/products', 'admin.products.index')->name('products.index');
     Volt::route('/pos', 'admin.pos.index')->name('pos');
     Volt::route('/orders', 'admin.orders.index')->name('orders.index');
+    Volt::route('/settings', 'admin.settings')->name('settings');
 });
 
 Route::middleware(['auth'])->group(function () {

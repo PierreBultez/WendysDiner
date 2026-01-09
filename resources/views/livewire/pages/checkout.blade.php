@@ -6,6 +6,7 @@ use App\Services\CartService;
 use App\Services\RevolutService;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -31,6 +32,7 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
     
     // UI State
     public bool $isProcessing = false;
+    public bool $isCardPaymentEnabled = true;
     
     // Revolut
     public ?string $revolutToken = null;
@@ -40,6 +42,15 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
     public function mount(): void
     {
         $this->revolutMode = config('services.revolut.mode', 'sandbox');
+        
+        $setting = Setting::where('key', 'payment_cb_enabled')->first();
+        $this->isCardPaymentEnabled = $setting ? (bool)$setting->value : true;
+
+        // If card payments are disabled, default to cash if current method is card
+        if (!$this->isCardPaymentEnabled && in_array($this->paymentMethod, ['revolut', 'card_terminal'])) {
+            $this->paymentMethod = 'cash';
+        }
+
         $this->refreshCart();
         if (empty($this->cart)) {
             $this->redirectRoute('menu');
@@ -174,6 +185,11 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
             'customer_address.required' => 'L\'adresse est requise pour la livraison.',
             'selectedSlot.required' => 'Veuillez choisir un créneau.',
         ]);
+
+        if (!$this->isCardPaymentEnabled && in_array($this->paymentMethod, ['revolut', 'card_terminal'])) {
+            $this->addError('paymentMethod', 'Les paiements par carte sont momentanément indisponibles.');
+            return;
+        }
 
         $this->isProcessing = true;
 
@@ -408,10 +424,13 @@ Exception $e) {
                     <div class="space-y-3">
                          <!-- Revolut Option -->
                          <label 
-                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors"
-                            :class="$wire.paymentMethod === 'revolut' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200'"
+                            class="flex items-center p-4 border rounded-lg transition-colors"
+                            :class="[
+                                $wire.paymentMethod === 'revolut' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200',
+                                !$wire.isCardPaymentEnabled ? 'opacity-50 cursor-not-allowed bg-zinc-50' : 'cursor-pointer hover:bg-zinc-50'
+                            ]"
                          >
-                            <input type="radio" wire:model.live="paymentMethod" value="revolut" class="sr-only">
+                            <input type="radio" wire:model.live="paymentMethod" value="revolut" class="sr-only" :disabled="!$wire.isCardPaymentEnabled">
                             <div class="flex items-center gap-3">
                                 <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="$wire.paymentMethod === 'revolut' ? 'border-accent-1' : 'border-zinc-300'">
                                     <div class="w-2.5 h-2.5 rounded-full bg-accent-1" x-show="$wire.paymentMethod === 'revolut'"></div>
@@ -425,10 +444,13 @@ Exception $e) {
 
                         <!-- Card Terminal Option -->
                         <label 
-                            class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-zinc-50 transition-colors"
-                            :class="$wire.paymentMethod === 'card_terminal' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200'"
+                            class="flex items-center p-4 border rounded-lg transition-colors"
+                            :class="[
+                                $wire.paymentMethod === 'card_terminal' ? 'border-accent-1 ring-1 ring-accent-1' : 'border-zinc-200',
+                                !$wire.isCardPaymentEnabled ? 'opacity-50 cursor-not-allowed bg-zinc-50' : 'cursor-pointer hover:bg-zinc-50'
+                            ]"
                         >
-                            <input type="radio" wire:model.live="paymentMethod" value="card_terminal" class="sr-only">
+                            <input type="radio" wire:model.live="paymentMethod" value="card_terminal" class="sr-only" :disabled="!$wire.isCardPaymentEnabled">
                             <div class="flex items-center gap-3">
                                 <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="$wire.paymentMethod === 'card_terminal' ? 'border-accent-1' : 'border-zinc-300'">
                                     <div class="w-2.5 h-2.5 rounded-full bg-accent-1" x-show="$wire.paymentMethod === 'card_terminal'"></div>
