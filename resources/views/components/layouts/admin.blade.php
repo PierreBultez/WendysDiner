@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Wendy's Diner" />
     <link rel="manifest" href="{{ asset('site.webmanifest') }}" />
 
-    @vite('resources/css/app.css')
+    @vite(['resources/css/app.css', 'resources/js/admin.js'])
     @fluxAppearance
 
 </head>
