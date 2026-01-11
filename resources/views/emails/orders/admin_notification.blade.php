@@ -25,7 +25,7 @@ Une nouvelle commande vient d'arriver !
 | **Total** | | **{{ number_format($order->total_amount, 2) }} €** | |
 </x-mail::table>
 
-<x-mail::button :url="route('admin.orders.index')">
+<x-mail::button :url="route('dashboard.orders.index')">
 Gérer la commande
 </x-mail::button>
 
