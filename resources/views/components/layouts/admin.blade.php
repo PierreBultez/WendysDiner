@@ -57,6 +57,9 @@
         <flux:sidebar.item icon="cake" href="{{ route('dashboard.products.index') }}" wire:navigate :current="request()->routeIs('dashboard.products.index')">
             Produits
         </flux:sidebar.item>
+        <flux:sidebar.item icon="receipt-percent" href="{{ route('dashboard.expenses.index') }}" wire:navigate :current="request()->routeIs('dashboard.expenses.index')">
+            Dépenses
+        </flux:sidebar.item>
         <flux:sidebar.item icon="cog-6-tooth" href="{{ route('dashboard.settings') }}" wire:navigate :current="request()->routeIs('dashboard.settings')">
             Paramètres
         </flux:sidebar.item>
