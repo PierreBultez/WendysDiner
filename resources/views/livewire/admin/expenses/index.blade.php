@@ -49,14 +49,14 @@ new #[Layout('components.layouts.admin')] class extends Component {
         ]);
 
         $this->reset(['amount', 'description', 'supplier_id', 'new_supplier_name']);
-        
+
         // Reset date to today
         $this->expense_date = now()->format('Y-m-d');
-        
+
         $this->dispatch('close-modal', 'create-expense');
     }
 
-    public function with()
+    public function with(): array
     {
         return [
             'expenses' => Expense::with('supplier')->latest('expense_date')->paginate(10),
@@ -129,7 +129,7 @@ new #[Layout('components.layouts.admin')] class extends Component {
 
             <div class="space-y-4 p-4 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                 <flux:label>Fournisseur</flux:label>
-                
+
                 <flux:select wire:model.live="supplier_id" placeholder="Choisir un fournisseur existant...">
                     <flux:select.option value="">Sélectionner...</flux:select.option>
                     @foreach($suppliers as $supplier)
