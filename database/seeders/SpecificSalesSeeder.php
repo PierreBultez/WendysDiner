@@ -14,10 +14,9 @@ class SpecificSalesSeeder extends Seeder
 {
     public function run(): void
     {
+        // Cible unique demandée
         $targets = [
-            ['month' => 7, 'year' => 2025, 'total' => 1273.40],
-            ['month' => 8, 'year' => 2025, 'total' => 5723.20],
-            ['month' => 9, 'year' => 2025, 'total' => 1533.60],
+            ['month' => 9, 'year' => 2025, 'total' => 1489.20],
         ];
 
         $product = Product::first() ?? Product::factory()->create(['price' => 10.00]);
@@ -26,25 +25,23 @@ class SpecificSalesSeeder extends Seeder
             $this->generateMonthlyRevenue($target['month'], $target['year'], $target['total'], $product);
         }
 
-        $this->command->info("Chiffres d'affaires spécifiques injectés avec succès !");
+        $this->command->info("Ajout de 1489.20€ sur Septembre 2025 effectué !");
     }
 
     private function generateMonthlyRevenue(int $month, int $year, float $targetTotal, $product)
     {
         $currentTotal = 0;
-        $orderCount = $month === 8 ? 40 : 15; // Plus de commandes pour le gros mois d'août
+        $orderCount = 15; 
         $remaining = $targetTotal;
 
         DB::transaction(function () use ($month, $year, $orderCount, &$remaining, $product) {
             for ($i = 0; $i < $orderCount; $i++) {
                 $isLast = ($i === $orderCount - 1);
                 
-                // Montant de la commande : aléatoire sauf pour la dernière
                 if ($isLast) {
                     $amount = $remaining;
                 } else {
-                    $amount = round(rand(20, 80) + (rand(0, 99) / 100), 2);
-                    // Sécurité pour ne pas dépasser le total prématurément
+                    $amount = round(rand(20, 150) + (rand(0, 99) / 100), 2);
                     if ($amount >= $remaining - 10) {
                         $amount = round($remaining / 2, 2);
                     }
@@ -52,7 +49,8 @@ class SpecificSalesSeeder extends Seeder
 
                 $remaining -= $amount;
 
-                $date = Carbon::create($year, $month, rand(1, 28), rand(11, 22), rand(0, 59));
+                // Dates aléatoires dans le mois
+                $date = Carbon::create($year, $month, rand(1, 30), rand(11, 22), rand(0, 59));
 
                 $order = Order::create([
                     'status' => 'terminée',
