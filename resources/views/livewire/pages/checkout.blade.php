@@ -9,6 +9,9 @@ use App\Models\OrderItem;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderConfirmation;
+use App\Mail\AdminNewOrder;
 
 new #[Title("Validation - Wendy's Diner")] class extends Component {
     
@@ -262,6 +265,10 @@ new #[Title("Validation - Wendy's Diner")] class extends Component {
 
             // If not Revolut, finalize immediately
             $this->awardAndDeductLoyaltyPoints($order);
+            
+            // Send Emails
+            $this->sendOrderEmails($order);
+
             app(CartService::class)->clear();
             $this->redirectRoute('success');
 
@@ -293,6 +300,9 @@ Exception $e) {
                 ]);
                 
                 $this->awardAndDeductLoyaltyPoints($order);
+
+                // Send Emails
+                $this->sendOrderEmails($order);
             }
         }
         
@@ -318,6 +328,20 @@ Exception $e) {
         
         if ($pointsToDeduct > 0) {
             $user->decrement('loyalty_points', $pointsToDeduct);
+        }
+    }
+
+    private function sendOrderEmails(Order $order): void
+    {
+        try {
+            // Send to Customer
+            Mail::to($order->customer_email)->send(new OrderConfirmation($order));
+            
+            // Send to Admin
+            Mail::to('contact@wendysdiner.com')->send(new AdminNewOrder($order));
+        } catch (\Exception $e) {
+            // Log error but don't block the user flow
+            \Illuminate\Support\Facades\Log::error('Failed to send order emails: ' . $e->getMessage());
         }
     }
 };
