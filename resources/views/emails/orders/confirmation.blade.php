@@ -22,7 +22,7 @@ Votre commande **#{{ $order->id }}** a bien été reçue et est en cours de pré
 
 **Moyen de paiement :** {{ ucfirst($order->payment_method) }}
 
-<x-mail::button :url="route('dashboard')">
+<x-mail::button :url="route('my-orders')">
 Voir ma commande
 </x-mail::button>
 
